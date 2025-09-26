@@ -1,0 +1,20 @@
+{
+    "name": "node_server",
+    "version": "1.0.0",
+    "description": "Fastify API with embedded Aedes MQTT broker and WebSocket bridge",
+    "type": "module",
+    "scripts": {
+        "dev": "node src/index.js",
+        "start": "node src/index.js"
+    },
+    "dependencies": {
+        "aedes": "^0.51.3",
+        "fastify": "^5.6.1",
+        "@fastify/cors": "^11.1.0",
+        "@fastify/rate-limit": "^10.3.0",
+        "ws": "^8.13.0"
+    },
+    "devDependencies": {
+        "pino-pretty": "^13.1.1"
+    }
+}
