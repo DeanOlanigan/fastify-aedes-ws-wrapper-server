@@ -16,23 +16,14 @@ export default async function mqttRoutes(fastify, opts) {
         return { ok: true, ts: Date.now() };
     });
 
-    fastify.get("/mqtt/metrics", async () => {
-        const clients = broker.clients
-            ? broker.clients.size ?? broker.clients.length
-            : 0;
-        return { clients, ts: Date.now() };
-    });
-
     fastify.get("/mqtt/clients", async () => {
         const list = [];
-        for (const [id, c] of broker.clients) {
+        for (const c of Object.values(broker.clients)) {
             list.push({
-                id,
+                id: c.id,
                 connected: !!c.connected,
                 ip: c.conn?.remoteAddress,
                 port: c.conn?.remotePort,
-                keepalive: c.keepalive,
-                clean: c.clean,
             });
         }
         return { count: list.length, clients: list };

@@ -44,9 +44,26 @@ if (DEMO) {
 async function shutdown() {
     try {
         fastify.log.info("Shutting down...");
-        if (DEMO) stopDemoPublishers();
-        await fastify.close();
+
+        if (DEMO) {
+            fastify.log.info("Stopping demo publishers...");
+            stopDemoPublishers();
+        }
+
+        if (typeof fastify.closeWsWrapper === "function") {
+            await fastify.closeWsWrapper();
+        }
+
+        fastify.log.info("Stopping MQTT broker...");
         await stopBroker();
+
+        fastify.log.info("Stopping HTTP server...");
+        await fastify.close();
+
+        fastify.server.closeIdleConnections?.();
+        fastify.server.closeAllConnections?.();
+
+        fastify.log.info("Done.");
         process.exit(0);
     } catch (e) {
         // eslint-disable-next-line no-console

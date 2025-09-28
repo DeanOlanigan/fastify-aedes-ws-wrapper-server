@@ -2,8 +2,8 @@ import {
     startDemoPublishers,
     stopDemoPublishers,
 } from "../broker/demo/publishers.js";
+import { promises as fs } from "fs";
 
-const mockStorage = new Map();
 let tirStatus = false;
 
 function send(reply, status, message, data) {
@@ -60,20 +60,21 @@ export default async function appRoutes(fastify, opts) {
             return send(reply, 400, "Bad request");
         }
 
-        const filePath = "/opt/storage/files/rimtir/config.xml";
-        mockStorage.set(filePath, xml);
-        return send(reply, 200, "Конфигурация успешно отправлена", filePath);
+        try {
+            await fs.writeFile("config.xml", xml);
+            return send(reply, 200, "Конфигурация успешно сохранена");
+        } catch (error) {
+            return send(reply, 500, "Конфигурация не сохранена", error);
+        }
     });
 
     // GET /api/v2/getConfiguration
     fastify.get("/api/v2/getConfiguration", async (req, reply) => {
-        const filePath = "/opt/storage/files/rimtir/config.xml";
-        const data = mockStorage.get(filePath);
-
-        if (!data) {
-            return send(reply, 404, "Конфигурация не найдена");
+        try {
+            const data = await fs.readFile("config.xml", "utf-8");
+            return send(reply, 200, "Конфигурация успешно получена", data);
+        } catch (error) {
+            return send(reply, 500, "Конфигурация не получена", error);
         }
-
-        return send(reply, 200, "Конфигурация успешно получена", data);
     });
 }
