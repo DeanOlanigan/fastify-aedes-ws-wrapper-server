@@ -15,6 +15,7 @@ import {
 } from "./broker/demo/publishers.js";
 import mqttRoutes from "./routes/mqtt.js";
 import appRoutes from "./routes/app.js";
+import throttledArchiveRoutes from "./routes/throttled-archive.js";
 
 // --- create broker
 const {
@@ -32,6 +33,7 @@ attachMqttOverWs({ fastify, broker, path: WS_PATH });
 await fastify.register(healthRoutes);
 await fastify.register(mqttRoutes, { broker });
 await fastify.register(appRoutes, { broker });
+await fastify.register(throttledArchiveRoutes);
 
 await fastify.listen({ port: HTTP_PORT });
 fastify.log.info(`HTTP listening :${HTTP_PORT}`);
