@@ -1,4 +1,8 @@
 let timers = [];
+function getRandomLoad() {
+    // eslint-disable-next-line
+    return Math.round(5 + Math.random() * 30);
+}
 
 export function startDemoPublishers(broker) {
     stopDemoPublishers();
@@ -7,26 +11,22 @@ export function startDemoPublishers(broker) {
     timers.push(
         setInterval(() => {
             broker.publish({
-                topic: "srv/metrics/time",
-                payload: JSON.stringify({ iso: new Date().toISOString() }),
-                qos: 1,
-                retain: true,
+                topic: "stats/time",
+                payload: JSON.stringify(Date.now()),
+                qos: 0,
+                retain: false,
             });
             broker.publish({
-                topic: "srv/metrics/cpu",
-                payload: JSON.stringify({
-                    pct: Math.round(Math.random() * 100),
-                }),
-                qos: 1,
-                retain: true,
+                topic: "stats/cpu",
+                payload: JSON.stringify(getRandomLoad()),
+                qos: 0,
+                retain: false,
             });
             broker.publish({
-                topic: "srv/metrics/ram",
-                payload: JSON.stringify({
-                    mb: 400 + Math.round(Math.random() * 1000),
-                }),
-                qos: 1,
-                retain: true,
+                topic: "stats/ram",
+                payload: JSON.stringify(getRandomLoad()),
+                qos: 0,
+                retain: false,
             });
         }, 1000)
     );
