@@ -1,62 +1,29 @@
+import fs from "fs";
+import { parseXml } from "./parseXml.js";
+import { metrics } from "./metrics.js";
+import { tick } from "./monitoring.js";
+
 let timers = [];
-function getRandomLoad() {
-    // eslint-disable-next-line
-    return Math.round(5 + Math.random() * 30);
-}
 
 export function startDemoPublishers(broker) {
     stopDemoPublishers();
 
+    const xmlString = fs.readFileSync("src/data/config.xml").toString();
+    const uuids = parseXml(xmlString);
+    const uniq = Array.from(new Set(uuids)).filter(Boolean);
+
     // metrics
     timers.push(
         setInterval(() => {
-            broker.publish({
-                topic: "stats/time",
-                payload: JSON.stringify(Date.now()),
-                qos: 0,
-                retain: false,
-            });
-            broker.publish({
-                topic: "stats/cpu",
-                payload: JSON.stringify(getRandomLoad()),
-                qos: 0,
-                retain: false,
-            });
-            broker.publish({
-                topic: "stats/ram",
-                payload: JSON.stringify(getRandomLoad()),
-                qos: 0,
-                retain: false,
-            });
+            metrics(broker);
         }, 1000)
     );
 
-    // device snapshot + delta
+    // monitoring
     timers.push(
         setInterval(() => {
-            broker.publish({
-                topic: "vars/deviceA/delta",
-                payload: JSON.stringify({ temp: 20 + Math.random() * 5 }),
-                qos: 1,
-                retain: false,
-            });
+            tick(uniq, broker);
         }, 3000)
-    );
-
-    // logs
-    timers.push(
-        setInterval(() => {
-            const levels = ["info", "warn", "error"];
-            const lvl = levels[Math.floor(Math.random() * levels.length)];
-            broker.publish({
-                topic: `logs/${lvl}`,
-                payload: JSON.stringify({
-                    ts: Date.now(),
-                    msg: `Example ${lvl}`,
-                }),
-                qos: 1,
-            });
-        }, 5000)
     );
 }
 
