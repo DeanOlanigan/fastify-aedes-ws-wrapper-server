@@ -1,7 +1,7 @@
 import path from "path";
 import { Transform } from "node:stream";
 
-const BASE_DIR = path.resolve("./src/data/logs");
+export const BASE_DIR = path.resolve("./src/data/logs");
 const ALLOWED_DIRS = new Set(["sd", "internal"]);
 
 export function safeJoinLogPath(dir, name) {
