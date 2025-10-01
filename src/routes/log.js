@@ -4,6 +4,7 @@ import readline from "readline";
 import path from "path";
 import { send } from "./utils.js";
 import { BASE_DIR } from "./utils.js";
+import { safeJoinLogPath } from "./utils.js";
 
 const dateFileRegex = /\.\d{8}T\d{6}\./;
 
@@ -85,7 +86,7 @@ async function listOfFilesWithSize(type) {
             const st = await fss.stat(fullPath);
             return {
                 label: file.name,
-                value: file.name,
+                value: `${type}/${file.name}`,
                 size: st.size,
                 mtime: st.mtime,
                 category: type,
