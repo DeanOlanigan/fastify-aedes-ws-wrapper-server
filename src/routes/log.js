@@ -1,12 +1,8 @@
 import fs from "fs";
 import fss from "fs/promises";
 import readline from "readline";
-import path from "path";
-import { send } from "./utils.js";
-import { BASE_DIR } from "./utils.js";
+import { levelToNumber, listOfFilesWithSize, send } from "./utils.js";
 import { safeJoinLogPath } from "./utils.js";
-
-const dateFileRegex = /\.\d{8}T\d{6}\./;
 
 export default async function logRoutes(fastify) {
     // GET /api/v2/log
@@ -71,35 +67,6 @@ export default async function logRoutes(fastify) {
     });
 }
 
-async function listOfFilesWithSize(type) {
-    const dirPath = path.resolve(BASE_DIR, type);
-
-    const entries = await fss.readdir(dirPath, {
-        withFileTypes: true,
-    });
-
-    const files = entries.filter((entry) => entry.isFile());
-
-    const stats = await Promise.all(
-        files.map(async (file) => {
-            const fullPath = path.join(dirPath, file.name);
-            const st = await fss.stat(fullPath);
-            return {
-                label: file.name,
-                value: `${type}/${file.name}`,
-                size: st.size,
-                mtime: st.mtime,
-                category: type,
-            };
-        })
-    );
-
-    const filtered = stats.filter((f) => !dateFileRegex.test(f.label));
-
-    filtered.sort((a, b) => b.mtime - a.mtime);
-    return filtered;
-}
-
 function parseLogLine(line) {
     // [YYYY-MM-DD HH:mm:ss,SSS]  [LEVEL]  message...
     const re =
@@ -120,25 +87,6 @@ function parseLogLine(line) {
         levelNum,
         message,
     };
-}
-
-function levelToNumber(level) {
-    switch (level) {
-        case "fatal":
-            return 60;
-        case "error":
-            return 50;
-        case "warn":
-            return 40;
-        case "info":
-            return 30;
-        case "debug":
-            return 20;
-        case "trace":
-            return 10;
-        default:
-            return 30;
-    }
 }
 
 async function tailLines(filePath, limit, mapFn) {
