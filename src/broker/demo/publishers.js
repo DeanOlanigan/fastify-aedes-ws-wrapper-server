@@ -3,6 +3,8 @@ import { parseXml } from "./parseXml.js";
 import { metrics } from "./metrics.js";
 import { tick } from "./monitoring.js";
 import { log } from "./log.js";
+import { journal } from "./journal.js";
+import { graph } from "./graph.js";
 
 let timers = [];
 
@@ -24,15 +26,29 @@ export function startDemoPublishers(broker) {
     timers.push(
         setInterval(() => {
             log(broker);
-        }, 2000)
+        }, 1000)
+    );
+
+    // journal
+    timers.push(
+        setInterval(() => {
+            journal(broker);
+        }, 1000)
+    );
+
+    // graph
+    timers.push(
+        setInterval(() => {
+            graph(broker);
+        }, 1000)
     );
 
     // monitoring
-    /* timers.push(
+    timers.push(
         setInterval(() => {
             tick(uniq, broker);
         }, 3000)
-    ); */
+    );
 }
 
 export function stopDemoPublishers() {
