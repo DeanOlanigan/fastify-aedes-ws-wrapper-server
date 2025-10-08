@@ -18,6 +18,8 @@ import appRoutes from "./routes/app.js";
 import logRoutes from "./routes/log.js";
 import configRoutes from "./routes/config.js";
 import archiveRoutes from "./routes/archive.js";
+import dbRoutes from "./routes/db.js";
+import { sqlitePlugin } from "./db.js";
 
 // --- create broker
 const {
@@ -31,6 +33,10 @@ await startBroker();
 const fastify = await createHttpServer({ logLevel: LOG_LEVEL });
 attachMqttOverWs({ fastify, broker, path: WS_PATH });
 
+await fastify.register(sqlitePlugin, {
+    filename: "./src/data/db/sd/test.db",
+});
+
 // routes
 await fastify.register(healthRoutes);
 await fastify.register(mqttRoutes, { broker });
@@ -38,6 +44,7 @@ await fastify.register(appRoutes, { broker });
 await fastify.register(logRoutes);
 await fastify.register(configRoutes);
 await fastify.register(archiveRoutes);
+await fastify.register(dbRoutes);
 
 await fastify.listen({ port: HTTP_PORT });
 fastify.log.info(`HTTP listening :${HTTP_PORT}`);

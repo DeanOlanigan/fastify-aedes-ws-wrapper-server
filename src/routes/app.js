@@ -2,7 +2,8 @@ import {
     startDemoPublishers,
     stopDemoPublishers,
 } from "../broker/demo/publishers.js";
-import { send } from "./utils.js";
+import { applyConfig, parseConfigXml, send } from "./utils.js";
+import fs from "fs";
 
 let tirStatus = false;
 
@@ -19,6 +20,13 @@ export default async function appRoutes(fastify, opts) {
         if (tirStatus) {
             return send(reply, 400, "ТИР уже запущен");
         }
+
+        const xmlString = fs.readFileSync("src/data/config.xml").toString();
+        const parsed = parseConfigXml(xmlString);
+        const appliedAt = Date.now();
+
+        const res = await applyConfig(fastify.db, parsed, appliedAt);
+
         tirStatus = true;
         startDemoPublishers(broker);
         return send(reply, 200, "ТИР успешно запущен");
