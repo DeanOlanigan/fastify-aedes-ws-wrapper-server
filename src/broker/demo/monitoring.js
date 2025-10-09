@@ -1,7 +1,6 @@
 const DEFAULTS = {
     periodMs: 1000,
     jitter: 0.25,
-    topicBase: "test",
     retain: false,
     source: "mixed",
 };
@@ -21,7 +20,7 @@ export function tick(uniq, broker) {
             st: Date.now(),
             ver: 1,
         };
-        const topic = `${DEFAULTS.topicBase}/node/${uuid}`;
+        const topic = `monitoring/node/${uuid}`;
         broker.publish({
             topic,
             payload: JSON.stringify(payload),
@@ -73,17 +72,36 @@ function qualityOk() {
 function nextValue(uuid) {
     let kind = kinds.get(uuid);
     if (!kind) {
-        kind = roll(0.3) ? "bool" : "float";
+        kind = roll(0.2) ? "bool" : "float";
         kinds.set(uuid, kind);
     }
+
     if (kind === "bool") {
         return { v: roll(0.5), kind };
     }
+
     const prev = values.get(uuid) ?? 20 + Math.random() * 10;
-    const step = (Math.random() - 0.5) * 4;
-    let next = prev + step;
+
+    let delta = (Math.random() - 0.5) * 2;
+
+    if (Math.random() < 0.02) {
+        delta += (Math.random() - 0.5) * 20; // кратковременный скачок
+    }
+
+    // Реалистичный дрейф к "среднему уровню" (затухающие колебания)
+    const mean = 25;
+    const drift = (mean - prev) * 0.05; // постепенное возвращение
+    let next = prev + delta + drift;
+
+    // Ограничиваем физически возможные пределы
     if (next < 0) next = 0;
     if (next > 100) next = 100;
+
+    // Добавляем небольшой случайный шум
+    next += (Math.random() - 0.5) * 0.3;
+
+    // Сохраняем новое значение
     values.set(uuid, next);
-    return { v: next, kind };
+
+    return { v: parseFloat(next.toFixed(3)), kind };
 }
