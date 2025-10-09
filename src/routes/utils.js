@@ -155,7 +155,7 @@ function toUnixMs(s) {
 export async function applyConfig(db, cfg, appliedAt) {
     const hash = crypto
         .createHash("sha256")
-        .update(JSON.stringify(cfg.variables))
+        .update(JSON.stringify(cfg))
         .digest("hex");
 
     try {
@@ -186,7 +186,7 @@ export async function applyConfig(db, cfg, appliedAt) {
         );
 
         const stmtOpenVer = await db.prepare(
-            `SELECT id, var_name, unit_code
+            `SELECT id, var_name, unit_code, 'group'
             FROM variable_version
             WHERE variable_id=? AND valid_to IS NULL`
         );
@@ -196,8 +196,8 @@ export async function applyConfig(db, cfg, appliedAt) {
         );
 
         const stmtInsVer = await db.prepare(
-            `INSERT INTO variable_version(variable_id, config_id, var_name, unit_code, valid_from, valid_to)
-            VALUES (?, ?, ?, ?, ?, NULL)`
+            `INSERT INTO variable_version(variable_id, config_id, var_name, unit_code, 'group', valid_from, valid_to)
+            VALUES (?, ?, ?, ?, ?, ?, NULL)`
         );
 
         const stmtCurrVerId = await db.prepare(
@@ -217,7 +217,8 @@ export async function applyConfig(db, cfg, appliedAt) {
             const same =
                 open &&
                 open.var_name === v.name &&
-                (open.unit_code ?? null) === (v.unit ?? null);
+                (open.unit_code ?? null) === (v.unit ?? null) &&
+                (open.group ?? null) === (v.group ?? null);
 
             if (!same && open?.id) {
                 await stmtCloseVer.run(appliedAt - 1, open.id);
@@ -230,6 +231,7 @@ export async function applyConfig(db, cfg, appliedAt) {
                     configId,
                     v.name,
                     v.unit ?? null,
+                    v.group ?? null,
                     appliedAt
                 );
                 newVersions += stmtInsVer.stmt.changes ?? 0;
