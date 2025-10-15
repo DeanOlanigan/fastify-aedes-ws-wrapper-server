@@ -27,6 +27,7 @@ export default async function mqttRoutes(fastify, opts) {
                 connected: !!c.connected,
                 ip: c.conn?.remoteAddress,
                 port: c.conn?.remotePort,
+                subscriptions: c.subscriptions,
             });
         }
         return { count: list.length, clients: list };
