@@ -20,6 +20,9 @@ import configRoutes from "./routes/config.js";
 import archiveRoutes from "./routes/archive.js";
 import dbRoutes from "./routes/db.js";
 import { sqlitePlugin } from "./db.js";
+import settingsRoutes from "./routes/settings.js";
+import updatesRoutes from "./routes/updates.js";
+import lecenseRoutes from "./routes/lecense.js";
 
 // --- create broker
 const {
@@ -45,6 +48,9 @@ await fastify.register(logRoutes);
 await fastify.register(configRoutes);
 await fastify.register(archiveRoutes);
 await fastify.register(dbRoutes);
+await fastify.register(settingsRoutes);
+await fastify.register(updatesRoutes); 
+await fastify.register(lecenseRoutes);
 
 await fastify.listen({ port: HTTP_PORT });
 fastify.log.info(`HTTP listening :${HTTP_PORT}`);
