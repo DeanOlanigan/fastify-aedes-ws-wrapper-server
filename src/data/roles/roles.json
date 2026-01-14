@@ -1,0 +1,49 @@
+{
+    "1": {
+        "name": "ГлядунСмотрун",
+        "rights": [
+            "lookConf",
+            "lookMonitor",
+            "lookLog",
+            "lookJourn",
+            "lookGraphs",
+            "lookSettings"
+        ]
+    },
+    "2": {
+        "name": "Конфигуратор",
+        "rights": [
+            "createConf",
+            "editConf",
+            "createConfVar",
+            "varInteract",
+            "renameVar",
+            "deleteVar",
+            "cutVar",
+            "copyVar",
+            "chooseVar",
+            "descriptVar",
+            "GPIOget",
+            "COMPORTget",
+            "IEC-104get",
+            "Modbusget",
+            "GPIOgive",
+            "COMPORTgive",
+            "IEC-104give",
+            "Modbusgive",
+            "sendConf",
+            "startServ",
+            "stopServ",
+            "restartServ"
+        ]
+    },
+    "3": {
+        "name": "Мониторщик",
+        "rights": [
+            "lookMonitor",
+            "handleInputMonitorVar",
+            "signalEditMonitorVar",
+            "lookGraphs"
+        ]
+    }
+}
