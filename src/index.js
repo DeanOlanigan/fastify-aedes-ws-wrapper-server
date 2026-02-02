@@ -38,9 +38,9 @@ await startBroker();
 const fastify = await createHttpServer({ logLevel: LOG_LEVEL });
 attachMqttOverWs({ fastify, broker, path: WS_PATH });
 
-await fastify.register(sqlitePlugin, {
+/* await fastify.register(sqlitePlugin, {
     filename: "./src/data/db/sd/test.db",
-});
+}); */
 
 // routes
 await fastify.register(healthRoutes);

@@ -25,7 +25,7 @@ export default async function appRoutes(fastify, opts) {
         const parsed = parseConfigXml(xmlString);
         const appliedAt = Date.now();
 
-        const res = await applyConfig(fastify.db, parsed, appliedAt);
+        //const res = await applyConfig(fastify.db, parsed, appliedAt);
 
         tirStatus = true;
         startDemoPublishers(broker);
