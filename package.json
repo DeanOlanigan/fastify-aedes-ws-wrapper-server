@@ -12,6 +12,7 @@
         "@fastify/rate-limit": "^10.3.0",
         "aedes": "^0.51.3",
         "archiver": "^7.0.1",
+        "crypto-js": "^4.2.0",
         "fast-xml-parser": "^5.2.5",
         "fastify": "^5.6.1",
         "sqlite": "^5.1.1",
