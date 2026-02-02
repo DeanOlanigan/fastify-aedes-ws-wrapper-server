@@ -25,6 +25,7 @@ import updatesRoutes from "./routes/updates.js";
 import lecenseRoutes from "./routes/lecense.js";
 import usersRoutes from "./routes/users.js";
 import rolesRoutes from "./routes/roles.js";
+import hmiRoutes from "./routes/hmi.js";
 
 // --- create broker
 const {
@@ -46,6 +47,7 @@ attachMqttOverWs({ fastify, broker, path: WS_PATH });
 await fastify.register(healthRoutes);
 await fastify.register(mqttRoutes, { broker });
 await fastify.register(appRoutes, { broker });
+await fastify.register(hmiRoutes);
 await fastify.register(logRoutes);
 await fastify.register(configRoutes);
 await fastify.register(archiveRoutes);
