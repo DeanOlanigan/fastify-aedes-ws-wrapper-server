@@ -30,6 +30,26 @@ export function tick(uniq, broker) {
     }
 }
 
+export function overrideValue(uuid, val) {
+    // Простейшая валидация или преобразование типов
+    let numericVal = parseFloat(val);
+
+    // Если переменная была булевой (по твоей логике kind='bool')
+    if (kinds.get(uuid) === 'bool') {
+        // Приводим к булеву, если пришло true/false или 1/0
+        // Но так как map хранит значения, можно упростить:
+        values.set(uuid, !!val);
+        return;
+    }
+
+    if (!isNaN(numericVal)) {
+        // Ограничиваем, как в nextValue (0..100)
+        if (numericVal < 0) numericVal = 0;
+        if (numericVal > 100) numericVal = 100;
+        values.set(uuid, numericVal);
+    }
+}
+
 function roll(p) {
     return Math.random() < p;
 }
