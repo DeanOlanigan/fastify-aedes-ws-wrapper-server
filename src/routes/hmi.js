@@ -45,7 +45,35 @@ export default async function hmiRoutes(fastify, opts) {
             }
             return send(reply, 500, "Error reading project", error);
         }
+    });
 
+    fastify.delete("/api/v2/hmi/project/:name", async (req, reply) => {
+        const { name } = req.params;
+        const dirPath = path.resolve("./src/data/hmi");
+        const fullPath = path.join(dirPath, name);
+        try {
+            await fss.unlink(fullPath);
+            return send(reply, 200, "HMI project successfully deleted");
+        } catch (error) {
+            if (error.code === "ENOENT") {
+                return send(reply, 404, "Project not found");
+            }
+            return send(reply, 500, "Error deleting project", error);
+        }
+    });
+
+    fastify.put("/api/v2/hmi/project/:name", async (req, reply) => {
+        const { name } = req.params;
+        const dirPath = path.resolve("./src/data/hmi");
+        const fullPath = path.join(dirPath, name);
+
+        try {
+            await fss.mkdir(dirPath, { recursive: true });
+            await fss.writeFile(fullPath, JSON.stringify(req.body, null, 2), "utf-8");
+            return send(reply, 200, "HMI project successfully updated");
+        } catch (error) {
+            return send(reply, 500, "Error saving project", error);
+        }
     });
 
 }
