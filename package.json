@@ -9,6 +9,7 @@
     },
     "dependencies": {
         "@fastify/cors": "^11.1.0",
+        "@fastify/multipart": "^9.4.0",
         "@fastify/rate-limit": "^10.3.0",
         "aedes": "^0.51.3",
         "archiver": "^7.0.1",

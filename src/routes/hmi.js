@@ -1,7 +1,10 @@
 import fss from "fs/promises";
+import fs from "fs";
 import path from "path";
 import { send } from "./utils.js";
+import { pipeline } from "stream/promises";
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default async function hmiRoutes(fastify, opts) {
     fastify.get("/api/v2/hmi/projects", async (req, reply) => {
@@ -23,6 +26,9 @@ export default async function hmiRoutes(fastify, opts) {
             }
         ));
         stats.sort((a, b) => b.mtime - a.mtime);
+
+        await delay(1500);
+
         return send(reply, 200, "HMI projects successfully retrieved", stats);
     });
 
@@ -34,11 +40,20 @@ export default async function hmiRoutes(fastify, opts) {
         }
 
         const dirPath = path.resolve("./src/data/hmi");
-        const fullPath = path.join(dirPath, name);
+        const fileName = name.endsWith(".tir-project") ? name : `${name}.tir-project`;
+        const fullPath = path.join(dirPath, fileName);
+
+        await delay(1500);
 
         try {
-            const content = await fss.readFile(fullPath, "utf-8");
-            return send(reply, 200, "HMI project successfully retrieved", JSON.parse(content));
+
+            await fs.promises.access(fullPath, fs.constants.F_OK);
+
+            reply.header("Content-Type", "application/octet-stream");
+            reply.header("Content-Disposition", `attachment; filename="${fileName}"`);
+
+            const stream = fs.createReadStream(fullPath);
+            return reply.send(stream);
         } catch (error) {
             if (error.code === "ENOENT") {
                 return send(reply, 404, "Project not found");
@@ -51,6 +66,9 @@ export default async function hmiRoutes(fastify, opts) {
         const { name } = req.params;
         const dirPath = path.resolve("./src/data/hmi");
         const fullPath = path.join(dirPath, name);
+
+        await delay(1500);
+
         try {
             await fss.unlink(fullPath);
             return send(reply, 200, "HMI project successfully deleted");
@@ -65,11 +83,24 @@ export default async function hmiRoutes(fastify, opts) {
     fastify.put("/api/v2/hmi/project/:name", async (req, reply) => {
         const { name } = req.params;
         const dirPath = path.resolve("./src/data/hmi");
-        const fullPath = path.join(dirPath, name);
+
+        const fileName = name.endsWith(".tir-project") ? name : `${name}.tir-project`;
+        const fullPath = path.join(dirPath, fileName);
+
+        const data = await req.file();
+        if (!data) {
+            return send(reply, 400, "No file uploaded");
+        }
+
+        await delay(1500);
 
         try {
             await fss.mkdir(dirPath, { recursive: true });
-            await fss.writeFile(fullPath, JSON.stringify(req.body, null, 2), "utf-8");
+
+            await pipeline(
+                data.file,
+                fs.createWriteStream(fullPath)
+            );
             return send(reply, 200, "HMI project successfully updated");
         } catch (error) {
             return send(reply, 500, "Error saving project", error);
