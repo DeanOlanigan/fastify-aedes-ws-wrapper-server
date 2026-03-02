@@ -1,7 +1,13 @@
 import argon2 from "argon2";
 
 export async function verifyPassword(passwordHash, plainPassword) {
-    return argon2.verify(passwordHash, plainPassword);
+    if (!passwordHash || typeof passwordHash !== "string") return false;
+    if (!plainPassword || typeof plainPassword !== "string") return false;
+    try {
+        return await argon2.verify(passwordHash, plainPassword);
+    } catch {
+        return false;
+    }
 }
 
 export async function hashPassword(plainPassword) {
@@ -9,8 +15,15 @@ export async function hashPassword(plainPassword) {
 }
 
 export function findUserByLogin(users, login) {
-    return Object.entries(users).find(
-        ([, user]) => user.login.toLowerCase() === login.toLowerCase()
+    if (!login || typeof login !== "string") return null;
+    const normalized = login.trim().toLowerCase();
+
+    return (
+        Object.entries(users).find(
+            ([, user]) =>
+                typeof user?.login === "string" &&
+                user.login.trim().toLowerCase() === normalized
+        ) ?? null
     );
 }
 

@@ -1,8 +1,7 @@
+import { validateSessionUser } from "./validateSessionUser";
+
 export async function requireAuth(request, reply) {
-    const sessionUser = request.session.user;
-    if (!sessionUser) {
-        return reply.code(401).send({ error: "UNAUTHORIZED" });
-    }
+    return validateSessionUser(request, reply);
 }
 
 export function requireRight(right) {
@@ -10,6 +9,18 @@ export function requireRight(right) {
         const sessionUser = request.session.user;
         if (!sessionUser) {
             return reply.code(401).send({ error: "UNAUTHORIZED" });
+        }
+
+        const currentUser = request.server.authStore.users[sessionUser.userId];
+        if (!currentUser || currentUser.isDisabled) {
+            await request.session.destroy();
+            return reply.code(401).send({ error: "UNAUTHORIZED" });
+        }
+
+        const currentVersion = currentUser.authzVersion ?? 1;
+        if (currentVersion !== sessionUser.authzVersion) {
+            await request.session.destroy();
+            return reply.code(401).send({ error: "SESSION_EXPIRED" });
         }
 
         if (!sessionUser.rights?.includes(right)) {
@@ -23,6 +34,18 @@ export function requireStepUp() {
         const sessionUser = request.session.user;
         if (!sessionUser) {
             return reply.code(401).send({ error: "UNAUTHORIZED" });
+        }
+
+        const currentUser = request.server.authStore.users[sessionUser.userId];
+        if (!currentUser || currentUser.isDisabled) {
+            await request.session.destroy();
+            return reply.code(401).send({ error: "UNAUTHORIZED" });
+        }
+
+        const currentVersion = currentUser.authzVersion ?? 1;
+        if (currentVersion !== sessionUser.authzVersion) {
+            await request.session.destroy();
+            return reply.code(401).send({ error: "SESSION_EXPIRED" });
         }
 
         if (!sessionUser.stepUpUntil || sessionUser.stepUpUntil < Date.now()) {

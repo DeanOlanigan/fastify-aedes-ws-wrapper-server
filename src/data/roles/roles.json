@@ -13,28 +13,10 @@
     "2": {
         "name": "Конфигуратор",
         "rights": [
-            "createConf",
-            "editConf",
-            "createConfVar",
-            "varInteract",
-            "renameVar",
-            "deleteVar",
-            "cutVar",
-            "copyVar",
-            "chooseVar",
-            "descriptVar",
-            "GPIOget",
-            "COMPORTget",
-            "IEC-104get",
-            "Modbusget",
-            "GPIOgive",
-            "COMPORTgive",
-            "IEC-104give",
-            "Modbusgive",
-            "sendConf",
-            "startServ",
-            "stopServ",
-            "restartServ"
+            "config.view",
+            "hmi.view",
+            "hmi.editor",
+            "hmi.upload"
         ]
     },
     "3": {

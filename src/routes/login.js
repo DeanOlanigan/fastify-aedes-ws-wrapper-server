@@ -1,7 +1,16 @@
 import { findUserByLogin, verifyPassword, collectRights } from "../services/auth.js";
+import { buildSessionUser } from "../services/session-user.js";
+import { validateSessionUser } from "../services/validateSessionUser.js";
 
 export const authRoutes = async function (fastify) {
-    fastify.post("/login", async (request, reply) => {
+    fastify.post("/login", {
+        config: {
+            rateLimit: {
+                max: 10,
+                timeWindow: "1 minute",
+            }
+        }
+    }, async (request, reply) => {
         const { login, password } = request.body ?? {};
 
         if (!login || !password) {
@@ -29,33 +38,12 @@ export const authRoutes = async function (fastify) {
         // важно: заново пересоздать сессию после логина
         await request.session.regenerate();
 
-        const rights = collectRights(user, roles);
-
-        request.session.user = {
-            userId,
-            login: user.login,
-            roles: user.roles ?? [],
-            rights,
-            authzVersion: user.authzVersion ?? 1,
-            mustChangePassword: !!user.mustChangePassword,
-            createdAt: Date.now(),
-            lastActivityAt: Date.now(),
-            stepUpUntil: 0,
-        };
+        const sessionUser = buildSessionUser(userId, user, roles);
+        request.session.user = sessionUser;
 
         return reply.send({
             ok: true,
-            user: {
-                id: userId,
-                login: user.login,
-                surname: user.surname,
-                name: user.name,
-                grandname: user.grandname,
-                position: user.position,
-                roles: user.roles ?? [],
-                rights,
-                mustChangePassword: !!user.mustChangePassword,
-            },
+            user: sessionUser,
         });
     });
 
@@ -66,14 +54,16 @@ export const authRoutes = async function (fastify) {
     });
 
     fastify.get("/session", async (request, reply) => {
-        const sessionUser = request.session.user;
-        if (!sessionUser) {
-            return reply.code(401).send({ error: "UNAUTHORIZED" });
+        const { authenticated, currentUser } = await validateSessionUser(request, reply);
+        if (!authenticated) {
+            return reply.send({ authenticated });
         }
 
+        const nextSessionUser = buildSessionUser(request.session.user.userId, currentUser, fastify.authStore.roles);
+
         return reply.send({
-            authenticated: true,
-            user: sessionUser,
+            authenticated,
+            user: nextSessionUser,
         });
     });
 

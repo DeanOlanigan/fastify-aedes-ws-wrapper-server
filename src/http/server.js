@@ -5,6 +5,7 @@ import fastifyMultipart from "@fastify/multipart";
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
 import { loadRoles, loadUsers } from "../services/auth-store.js";
+import { SESSION_SECRET } from "../config.js";
 
 export async function createHttpServer({ logLevel }) {
     const fastify = Fastify({
@@ -22,7 +23,7 @@ export async function createHttpServer({ logLevel }) {
 
     await fastify.register(fastifyCookie);
     await fastify.register(fastifySession, {
-        secret: "very-long-secret-string-should-be-here",
+        secret: SESSION_SECRET,
         cookieName: "sid",
         cookie: {
             path: "/",

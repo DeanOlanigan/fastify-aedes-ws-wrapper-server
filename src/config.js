@@ -3,3 +3,4 @@ export const MQTT_TCP_PORT = Number(process.env.MQTT_TCP_PORT) || 1883;
 export const WS_PATH = process.env.WS_PATH || "/mqtt";
 export const LOG_LEVEL = process.env.LOG_LEVEL || "info";
 export const DEMO = process.env.DEMO === "true";
+export const SESSION_SECRET = process.env.SESSION_SECRET || "very-long-secret-string-should-be-here";
