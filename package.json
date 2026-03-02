@@ -8,12 +8,15 @@
         "start": "node src/index.js"
     },
     "dependencies": {
+        "@fastify/cookie": "^11.0.2",
         "@fastify/cors": "^11.1.0",
         "@fastify/multipart": "^9.4.0",
         "@fastify/rate-limit": "^10.3.0",
+        "@fastify/session": "^11.1.1",
         "adm-zip": "^0.5.16",
         "aedes": "^0.51.3",
         "archiver": "^7.0.1",
+        "argon2": "^0.44.0",
         "crypto-js": "^4.2.0",
         "fast-xml-parser": "^5.2.5",
         "fastify": "^5.6.1",

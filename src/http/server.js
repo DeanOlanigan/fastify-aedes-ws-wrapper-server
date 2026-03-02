@@ -2,6 +2,9 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import fastifyMultipart from "@fastify/multipart";
+import fastifyCookie from "@fastify/cookie";
+import fastifySession from "@fastify/session";
+import { loadRoles, loadUsers } from "../services/auth-store.js";
 
 export async function createHttpServer({ logLevel }) {
     const fastify = Fastify({
@@ -17,13 +20,37 @@ export async function createHttpServer({ logLevel }) {
         },
     });
 
-    await fastify.register(cors, { origin: true });
+    await fastify.register(fastifyCookie);
+    await fastify.register(fastifySession, {
+        secret: "very-long-secret-string-should-be-here",
+        cookieName: "sid",
+        cookie: {
+            path: "/",
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 60 * 60 * 8 * 1000,
+        },
+        rolling: true,
+        saveUninitialized: false,
+    })
+    await fastify.register(cors, { origin: "http://localhost:5173", credentials: true });
     await fastify.register(rateLimit, { max: 200, timeWindow: "1 minute" });
     await fastify.register(fastifyMultipart, {
         limits: {
             fileSize: 100 * 1024 * 1024,
         }
     })
+
+    fastify.decorate("authStore", {
+        users: await loadUsers(),
+        roles: await loadRoles(),
+    });
+
+    fastify.decorate("reloadAuthStore", async function () {
+        this.authStore.users = await loadUsers();
+        this.authStore.roles = await loadRoles();
+    });
 
     // Разбор текстовых/xml тел как строк
     fastify.addContentTypeParser(

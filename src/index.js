@@ -26,6 +26,7 @@ import lecenseRoutes from "./routes/lecense.js";
 import usersRoutes from "./routes/users.js";
 import rolesRoutes from "./routes/roles.js";
 import hmiRoutes from "./routes/hmi.js";
+import { authRoutes } from "./routes/login.js";
 
 // --- create broker
 const {
@@ -57,6 +58,7 @@ await fastify.register(updatesRoutes);
 await fastify.register(lecenseRoutes);
 await fastify.register(usersRoutes);
 await fastify.register(rolesRoutes);
+await fastify.register(authRoutes, {prefix: "/api/v2/auth"});
 
 await fastify.listen({ port: HTTP_PORT });
 fastify.log.info(`HTTP listening :${HTTP_PORT}`);
