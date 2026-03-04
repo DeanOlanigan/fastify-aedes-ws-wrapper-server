@@ -21,13 +21,16 @@ export const PERMISSIONS = new Map([
     ["config.create", { requiredCapabilities: [] }],
     ["config.open", { requiredCapabilities: [] }],
     ["config.edit", { requiredCapabilities: [] }],
+    // подумать
+    ["config.editor", { requiredCapabilities: [] }],
 
+    // Лишнее
     ["config.receive.gpio.create", { requiredCapabilities: ["feature.protocol.gpio"] }],
     ["config.receive.modbus_tcp.create", { requiredCapabilities: ["feature.protocol.modbus_tcp"] }],
     ["config.receive.modbus_rtu.create", { requiredCapabilities: ["feature.protocol.modbus_rtu"] }],
     ["config.receive.iec104.create", { requiredCapabilities: ["feature.protocol.iec104"] }],
     ["config.receive.goose.create", { requiredCapabilities: ["feature.protocol.goose"] }],
-
+    // Лишнее
     ["config.transmit.gpio.create", { requiredCapabilities: ["feature.protocol.gpio"] }],
     ["config.transmit.modbus_tcp.create", { requiredCapabilities: ["feature.protocol.modbus_tcp"] }],
     ["config.transmit.modbus_rtu.create", { requiredCapabilities: ["feature.protocol.modbus_rtu"] }],
@@ -41,6 +44,7 @@ export const PERMISSIONS = new Map([
     ["monitoring.view", { requiredCapabilities: [] }],
     ["monitoring.variables.manual_input", { requiredCapabilities: [] }],
     ["monitoring.variables.signal_editor", { requiredCapabilities: [] }],
+    ["monitoring.variables.telecontrol", { requiredCapabilities: [] }], // для cmd
 
     ["logs.view", { requiredCapabilities: ["feature.logs"] }],
     ["logs.download", { requiredCapabilities: ["feature.logs"] }],
