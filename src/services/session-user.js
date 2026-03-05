@@ -9,6 +9,7 @@ export function buildSessionUser(userId, user, rolesMap, prev = {}) {
         grandname: user.grandname,
         position: user.position,
         roles: user.roles ?? [],
+        roleNames: user.roles.map((roleId) => rolesMap[roleId].name),
         rights: collectRights(user, rolesMap),
         authzVersion: user.authzVersion ?? 1,
         mustChangePassword: !!user.mustChangePassword,
