@@ -1,3 +1,5 @@
+import { v7 as uuidv7 } from "uuid";
+
 const USERS = [
     { login: "operator", name: "Иванов И.И.", role: "operator" },
     { login: "engineer", name: "Петров П.П.", role: "engineer" },
@@ -168,6 +170,7 @@ function updateVariable(variable) {
 
 function makeBase(type, user) {
     return {
+        id: uuidv7(),
         type,
         ts: Date.now(),
         user: user?.login || null,
