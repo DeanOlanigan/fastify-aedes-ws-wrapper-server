@@ -1,4 +1,4 @@
-import { WebSocketServer, createWebSocketStream } from "ws";
+import { createWebSocketStream, WebSocketServer } from "ws";
 
 export function attachMqttOverWs({ fastify, broker, path }) {
     // path должен начинаться с "/", иначе апгрейд может не матчиться
@@ -85,7 +85,7 @@ export function attachMqttOverWs({ fastify, broker, path }) {
                             ws.terminate();
                         } catch {}
                     }
-                })
+                }),
             );
         }
 
@@ -115,7 +115,7 @@ export function attachMqttOverWs({ fastify, broker, path }) {
     fastify.decorate("closeWsWrapper", closeWsWrapper);
 
     fastify.log.info(
-        `MQTT over WS: ws://<host>${path.startsWith("/") ? "" : "/"}${path}`
+        `MQTT over WS: ws://<host>${path.startsWith("/") ? "" : "/"}${path}`,
     );
     return { wss, closeWsWrapper };
 }

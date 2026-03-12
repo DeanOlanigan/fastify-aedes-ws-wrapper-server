@@ -23,9 +23,11 @@ export function parseXml(xmlString) {
 
         for (const [key, value] of Object.entries(node)) {
             if (key === "DataObject" || key === "Variable") {
-                if (Array.isArray(value))
-                    value.forEach((v) => picked.push(v.id));
-                else picked.push(value.id);
+                if (Array.isArray(value)) {
+                    for (const v of value) picked.push(v.id);
+                } else {
+                    picked.push(value.id);
+                }
             }
             if (value && typeof value === "object") walk(value);
         }

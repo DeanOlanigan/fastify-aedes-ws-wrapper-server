@@ -24,19 +24,6 @@ export const PERMISSIONS = new Map([
     // подумать
     ["config.editor", { requiredCapabilities: [] }],
 
-    // Лишнее
-    ["config.receive.gpio.create", { requiredCapabilities: ["feature.protocol.gpio"] }],
-    ["config.receive.modbus_tcp.create", { requiredCapabilities: ["feature.protocol.modbus_tcp"] }],
-    ["config.receive.modbus_rtu.create", { requiredCapabilities: ["feature.protocol.modbus_rtu"] }],
-    ["config.receive.iec104.create", { requiredCapabilities: ["feature.protocol.iec104"] }],
-    ["config.receive.goose.create", { requiredCapabilities: ["feature.protocol.goose"] }],
-    // Лишнее
-    ["config.transmit.gpio.create", { requiredCapabilities: ["feature.protocol.gpio"] }],
-    ["config.transmit.modbus_tcp.create", { requiredCapabilities: ["feature.protocol.modbus_tcp"] }],
-    ["config.transmit.modbus_rtu.create", { requiredCapabilities: ["feature.protocol.modbus_rtu"] }],
-    ["config.transmit.iec104.create", { requiredCapabilities: ["feature.protocol.iec104"] }],
-    ["config.transmit.goose.create", { requiredCapabilities: ["feature.protocol.goose"] }],
-
     ["server.start", { requiredCapabilities: [] }],
     ["server.stop", { requiredCapabilities: [] }],
     ["server.restart", { requiredCapabilities: [] }],

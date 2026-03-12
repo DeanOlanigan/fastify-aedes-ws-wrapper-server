@@ -107,10 +107,6 @@ function pick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function roll(p) {
-    return Math.random() < p;
-}
-
 function pickWeighted(items) {
     const total = items.reduce((sum, item) => sum + item.weight, 0);
     let r = Math.random() * total;
@@ -410,7 +406,6 @@ function generateJournalMessage() {
             return genConfigChange();
         case "server_stop":
             return genServerStop();
-        case "heartbeat":
         default:
             return genHeartbeat();
     }

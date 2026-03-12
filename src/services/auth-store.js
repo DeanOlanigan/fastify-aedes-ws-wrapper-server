@@ -1,4 +1,4 @@
-import { readFile, writeFile, rename } from "node:fs/promises";
+import { readFile, rename, writeFile } from "node:fs/promises";
 
 const USERS_FILE = "src/data/users/users.json";
 const ROLES_FILE = "src/data/roles/roles.json";

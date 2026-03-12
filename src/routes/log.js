@@ -1,8 +1,12 @@
-import fs from "fs";
-import fss from "fs/promises";
-import readline from "readline";
-import { levelToNumber, listOfFilesWithSize, send } from "./utils.js";
-import { safeJoinLogPath } from "./utils.js";
+import fs from "node:fs";
+import fss from "node:fs/promises";
+import readline from "node:readline";
+import {
+    levelToNumber,
+    listOfFilesWithSize,
+    safeJoinLogPath,
+    send,
+} from "./utils.js";
 
 export default async function logRoutes(fastify) {
     // GET /api/v2/log
@@ -12,7 +16,7 @@ export default async function logRoutes(fastify) {
         let fullPath;
         try {
             fullPath = safeJoinLogPath(dir, name);
-        } catch (error) {
+        } catch {
             return send(reply, 403, "Forbidden");
         }
 
@@ -21,7 +25,7 @@ export default async function logRoutes(fastify) {
 
         try {
             await fss.access(fullPath);
-        } catch (error) {
+        } catch {
             return send(reply, 404, "Log not found");
         }
 
@@ -38,7 +42,7 @@ export default async function logRoutes(fastify) {
         if (format === "json") {
             try {
                 const items = await tailLines(fullPath, take, (line) =>
-                    parseLogLine(line)
+                    parseLogLine(line),
                 );
                 return send(reply, 200, "Лог успешно получен", items);
             } catch (error) {
@@ -50,7 +54,7 @@ export default async function logRoutes(fastify) {
     });
 
     // GET /api/v2/logList
-    fastify.get("/api/v2/loglist", async (req, reply) => {
+    fastify.get("/api/v2/loglist", async (_, reply) => {
         try {
             const [sd, internal] = await Promise.all([
                 listOfFilesWithSize("sd"),

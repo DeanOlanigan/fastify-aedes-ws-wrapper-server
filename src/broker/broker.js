@@ -1,5 +1,5 @@
-import Aedes from "aedes";
 import { createServer as createTcpServer } from "node:net";
+import Aedes from "aedes";
 import { overrideValue } from "./demo/monitoring.js";
 
 const COMMAND_TOPIC_PATTERN = /^commands\/node\/(.+)$/;
@@ -8,10 +8,10 @@ export async function createBroker({ mqttPort, logger }) {
     const broker = await Aedes();
 
     broker.on("client", (client) =>
-        logger?.info({ id: client?.id }, "mqtt client connected")
+        logger?.info({ id: client?.id }, "mqtt client connected"),
     );
     broker.on("clientDisconnect", (client) =>
-        logger?.info({ id: client?.id }, "mqtt client disconnected")
+        logger?.info({ id: client?.id }, "mqtt client disconnected"),
     );
     broker.on("publish", (packet, client) => {
         // Игнорируем системные сообщения и то, что публикует сам сервер (если client=null)
@@ -25,7 +25,7 @@ export async function createBroker({ mqttPort, logger }) {
                 retain: packet?.retain,
                 by: client?.id ?? "server",
             },
-            "mqtt publish"
+            "mqtt publish",
         );
 
         const match = packet.topic.match(COMMAND_TOPIC_PATTERN);
@@ -40,13 +40,19 @@ export async function createBroker({ mqttPort, logger }) {
                 // Извлекаем значение (предположим формат { v: ... })
                 const valueToSet = data.v !== undefined ? data.v : data;
 
-                console.log(`[CMD] Received command for ${uuid}:`, valueToSet, `from client ${client?.id}`);
+                console.log(
+                    `[CMD] Received command for ${uuid}:`,
+                    valueToSet,
+                    `from client ${client?.id}`,
+                );
 
                 // Применяем изменение к "физической модели"
                 overrideValue(uuid, valueToSet);
-
             } catch (e) {
-                console.error(`[CMD] Failed to process command for ${uuid}:`, e.message);
+                console.error(
+                    `[CMD] Failed to process command for ${uuid}:`,
+                    e.message,
+                );
             }
         }
     });
@@ -57,7 +63,7 @@ export async function createBroker({ mqttPort, logger }) {
         return new Promise((resolve) => {
             tcpServer.listen(mqttPort, () => {
                 logger?.info(
-                    `Aedes MQTT broker (TCP) listening on :${mqttPort}`
+                    `Aedes MQTT broker (TCP) listening on :${mqttPort}`,
                 );
                 resolve();
             });
@@ -70,8 +76,8 @@ export async function createBroker({ mqttPort, logger }) {
         }).then(
             () =>
                 new Promise((resolve, reject) =>
-                    broker.close((e) => (e ? reject(e) : resolve()))
-                )
+                    broker.close((e) => (e ? reject(e) : resolve())),
+                ),
         );
     }
 

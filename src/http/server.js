@@ -1,11 +1,11 @@
-import Fastify from "fastify";
-import cors from "@fastify/cors";
-import rateLimit from "@fastify/rate-limit";
-import fastifyMultipart from "@fastify/multipart";
 import fastifyCookie from "@fastify/cookie";
+import cors from "@fastify/cors";
+import fastifyMultipart from "@fastify/multipart";
+import rateLimit from "@fastify/rate-limit";
 import fastifySession from "@fastify/session";
-import { loadRoles, loadUsers } from "../services/auth-store.js";
+import Fastify from "fastify";
 import { SESSION_SECRET } from "../config.js";
+import { loadRoles, loadUsers } from "../services/auth-store.js";
 
 export async function createHttpServer({ logLevel }) {
     const fastify = Fastify({
@@ -14,9 +14,9 @@ export async function createHttpServer({ logLevel }) {
             transport:
                 process.env.NODE_ENV !== "production"
                     ? {
-                          target: "pino-pretty",
-                          options: { translateTime: "HH:MM:ss.l" },
-                      }
+                        target: "pino-pretty",
+                        options: { translateTime: "HH:MM:ss.l" },
+                    }
                     : undefined,
         },
     });
@@ -34,18 +34,18 @@ export async function createHttpServer({ logLevel }) {
         },
         rolling: true,
         saveUninitialized: false,
-    })
+    });
     await fastify.register(cors, {
         origin: ["http://localhost:5173", "http://localhost:4173"],
         credentials: true,
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     });
     await fastify.register(rateLimit, { max: 200, timeWindow: "1 minute" });
     await fastify.register(fastifyMultipart, {
         limits: {
             fileSize: 100 * 1024 * 1024,
-        }
-    })
+        },
+    });
 
     fastify.decorate("authStore", {
         users: await loadUsers(),
@@ -61,9 +61,9 @@ export async function createHttpServer({ logLevel }) {
     fastify.addContentTypeParser(
         ["text/plain", "text/xml", "application/xml"],
         { parseAs: "string" },
-        (req, body, done) => {
+        (_, body, done) => {
             done(null, body);
-        }
+        },
     );
 
     return fastify;

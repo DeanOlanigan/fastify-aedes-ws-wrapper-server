@@ -1,4 +1,4 @@
-import { levelToNumber, listOfFilesWithSize } from "../../routes/utils.js";
+import { levelToNumber } from "../../routes/utils.js";
 
 const LEVELS = ["info", "warn", "error"];
 

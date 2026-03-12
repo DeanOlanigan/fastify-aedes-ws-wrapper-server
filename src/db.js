@@ -1,6 +1,6 @@
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
 import fp from "fastify-plugin";
+import { open } from "sqlite";
+import sqlite3 from "sqlite3";
 
 export const sqlitePlugin = fp(async (fastify, opts) => {
     const db = await open({
@@ -16,7 +16,7 @@ export const sqlitePlugin = fp(async (fastify, opts) => {
 
     fastify.decorate("db", db);
 
-    fastify.addHook("onClose", async (app, done) => {
+    fastify.addHook("onClose", async (_, done) => {
         try {
             await db.close();
             done();

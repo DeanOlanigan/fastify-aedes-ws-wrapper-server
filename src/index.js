@@ -1,32 +1,32 @@
-﻿import {
-    HTTP_PORT,
-    MQTT_TCP_PORT,
-    WS_PATH,
-    LOG_LEVEL,
-    DEMO,
-} from "./config.js";
-import { createBroker } from "./broker/broker.js";
-import { createHttpServer } from "./http/server.js";
-import { attachMqttOverWs } from "./http/ws.js";
-import healthRoutes from "./routes/health.js";
+﻿import { createBroker } from "./broker/broker.js";
 import {
     startDemoPublishers,
     stopDemoPublishers,
 } from "./broker/demo/publishers.js";
-import mqttRoutes from "./routes/mqtt.js";
+import {
+    DEMO,
+    HTTP_PORT,
+    LOG_LEVEL,
+    MQTT_TCP_PORT,
+    WS_PATH,
+} from "./config.js";
+//import { sqlitePlugin } from "./db.js";
+import { createHttpServer } from "./http/server.js";
+import { attachMqttOverWs } from "./http/ws.js";
 import appRoutes from "./routes/app.js";
-import logRoutes from "./routes/log.js";
-import configRoutes from "./routes/config.js";
 import archiveRoutes from "./routes/archive.js";
+import configRoutes from "./routes/config.js";
 import dbRoutes from "./routes/db.js";
-import { sqlitePlugin } from "./db.js";
+import healthRoutes from "./routes/health.js";
+import hmiRoutes from "./routes/hmi.js";
+import lecenseRoutes from "./routes/lecense.js";
+import logRoutes from "./routes/log.js";
+import { authRoutes } from "./routes/login.js";
+import mqttRoutes from "./routes/mqtt.js";
+import rolesRoutes from "./routes/roles.js";
 import settingsRoutes from "./routes/settings.js";
 import updatesRoutes from "./routes/updates.js";
-import lecenseRoutes from "./routes/lecense.js";
 import usersRoutes from "./routes/users.js";
-import rolesRoutes from "./routes/roles.js";
-import hmiRoutes from "./routes/hmi.js";
-import { authRoutes } from "./routes/login.js";
 
 // --- create broker
 const {
@@ -58,7 +58,7 @@ await fastify.register(updatesRoutes);
 await fastify.register(lecenseRoutes);
 await fastify.register(usersRoutes);
 await fastify.register(rolesRoutes);
-await fastify.register(authRoutes, {prefix: "/api/v2/auth"});
+await fastify.register(authRoutes, { prefix: "/api/v2/auth" });
 
 await fastify.listen({ port: HTTP_PORT });
 fastify.log.info(`HTTP listening :${HTTP_PORT}`);

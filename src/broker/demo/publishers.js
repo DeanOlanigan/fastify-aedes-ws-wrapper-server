@@ -1,10 +1,10 @@
 import fs from "fs";
-import { parseXml } from "./parseXml.js";
+import { graph } from "./graph.js";
+import { journal } from "./journal.js";
+import { log } from "./log.js";
 import { metrics } from "./metrics.js";
 import { tick } from "./monitoring.js";
-import { log } from "./log.js";
-import { journal } from "./journal.js";
-import { graph } from "./graph.js";
+import { parseXml } from "./parseXml.js";
 
 let timers = [];
 
@@ -19,36 +19,36 @@ export function startDemoPublishers(broker) {
     timers.push(
         setInterval(() => {
             metrics(broker);
-        }, 1000)
+        }, 1000),
     );
 
     // log
-    timers.push(
+    /* timers.push(
         setInterval(() => {
             log(broker);
         }, 1000)
-    );
+    ); */
 
     // journal
     timers.push(
         setInterval(() => {
             journal(broker);
-        }, 1000)
+        }, 1000),
     );
 
     // graph
-    timers.push(
+    /* timers.push(
         setInterval(() => {
             graph(broker);
         }, 1000)
-    );
+    ); */
 
     // monitoring
-    timers.push(
+    /* timers.push(
         setInterval(() => {
             tick(uniq, broker);
-        }, 3000)
-    );
+        }, 500)
+    ); */
 }
 
 export function stopDemoPublishers() {

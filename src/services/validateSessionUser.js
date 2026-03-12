@@ -1,4 +1,4 @@
-export async function validateSessionUser(request, reply) {
+export async function validateSessionUser(request) {
     const sessionUser = request.session.user;
     if (!sessionUser) {
         return { authenticated: false };

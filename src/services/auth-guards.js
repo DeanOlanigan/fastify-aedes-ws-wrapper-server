@@ -1,11 +1,11 @@
 import { validateSessionUser } from "./validateSessionUser";
 
-export async function requireAuth(request, reply) {
-    return validateSessionUser(request, reply);
+export async function requireAuth(request) {
+    return validateSessionUser(request);
 }
 
 export function requireRight(right) {
-    return async function (request, reply) {
+    return async (request, reply) => {
         const sessionUser = request.session.user;
         if (!sessionUser) {
             return reply.code(401).send({ error: "UNAUTHORIZED" });
@@ -30,7 +30,7 @@ export function requireRight(right) {
 }
 
 export function requireStepUp() {
-    return async function (request, reply) {
+    return async (request, reply) => {
         const sessionUser = request.session.user;
         if (!sessionUser) {
             return reply.code(401).send({ error: "UNAUTHORIZED" });

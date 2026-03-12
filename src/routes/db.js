@@ -4,7 +4,7 @@ export default async function dbRoutes(fastify) {
         const variables = vars?.split(",") ?? [];
         try {
             const rows = await fastify.db.all(
-                `SELECT * 
+                `SELECT *
                 FROM TELEMETRY
                 WHERE VarName in (${variables.map(() => "?").join(",")})
                     AND DateTime BETWEEN ? and ?
@@ -37,7 +37,7 @@ export default async function dbRoutes(fastify) {
             await stmt.finalize();
 
             return reply.send({ ok: true, count: rows.length });
-        } catch (error) {
+        } catch {
             await fastify.db.exec("ROLLBACK");
             req.log.error(err);
             return reply

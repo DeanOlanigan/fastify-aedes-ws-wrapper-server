@@ -1,4 +1,4 @@
-import fss from "fs/promises";
+import fss from "node:fs/promises";
 import { send } from "./utils.js";
 
 export default async function configRoutes(fastify) {
@@ -25,7 +25,7 @@ export default async function configRoutes(fastify) {
     });
 
     // GET /api/v2/getConfiguration
-    fastify.get("/api/v2/configuration", async (req, reply) => {
+    fastify.get("/api/v2/configuration", async (_, reply) => {
         try {
             const data = await fss.readFile("./src/data/config.xml", "utf-8");
             return send(reply, 200, "Конфигурация успешно получена", data);

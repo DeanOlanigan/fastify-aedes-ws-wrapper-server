@@ -1,9 +1,10 @@
+//import fs from "node:fs";
 import {
     startDemoPublishers,
     stopDemoPublishers,
 } from "../broker/demo/publishers.js";
-import { applyConfig, parseConfigXml, send } from "./utils.js";
-import fs from "fs";
+
+import { send } from "./utils.js";
 
 let tirStatus = false;
 
@@ -11,21 +12,20 @@ export default async function appRoutes(fastify, opts) {
     const { broker } = opts;
 
     // GET /api/v1/getSoftwareVer
-    fastify.get("/api/v1/softwareVer", async (req, reply) => {
+    fastify.get("/api/v1/softwareVer", async (_, reply) => {
         return send(reply, 200, "Success", "1.99.999");
     });
 
     // POST /api/v2/startTir
-    fastify.post("/api/v2/startTir", async (req, reply) => {
+    fastify.post("/api/v2/startTir", async (_, reply) => {
         if (tirStatus) {
             return send(reply, 400, "ТИР уже запущен");
         }
 
-        const xmlString = fs.readFileSync("src/data/config.xml").toString();
+        /* const xmlString = fs.readFileSync("src/data/config.xml").toString();
         const parsed = parseConfigXml(xmlString);
         const appliedAt = Date.now();
-
-        //const res = await applyConfig(fastify.db, parsed, appliedAt);
+        const res = await applyConfig(fastify.db, parsed, appliedAt); */
 
         tirStatus = true;
         startDemoPublishers(broker);
@@ -33,7 +33,7 @@ export default async function appRoutes(fastify, opts) {
     });
 
     // POST /api/v2/stopTir
-    fastify.post("/api/v2/stopTir", async (req, reply) => {
+    fastify.post("/api/v2/stopTir", async (_, reply) => {
         if (!tirStatus) {
             return send(reply, 400, "ТИР не запущен");
         }
@@ -44,7 +44,7 @@ export default async function appRoutes(fastify, opts) {
     });
 
     // POST /api/v2/restartTir
-    fastify.post("/api/v2/restartTir", async (req, reply) => {
+    fastify.post("/api/v2/restartTir", async (_, reply) => {
         return send(reply, 200, "ТИР успешно перезапущен");
     });
 }

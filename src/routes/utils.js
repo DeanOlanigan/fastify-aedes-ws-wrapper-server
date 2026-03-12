@@ -1,8 +1,8 @@
-import fss from "fs/promises";
-import path from "path";
+import crypto from "node:crypto";
+import fss from "node:fs/promises";
+import path from "node:path";
 import { Transform } from "node:stream";
 import { XMLParser } from "fast-xml-parser";
-import crypto from "node:crypto";
 
 export const BASE_DIR = path.resolve("./src/data/logs");
 
@@ -26,7 +26,7 @@ export function send(reply, status, message, data) {
 
 export function slowDownStream(delayMs = 10, chunkSize = 256) {
     return new Transform({
-        transform(chunk, encoding, callback) {
+        transform(chunk, _, callback) {
             const buffer = Buffer.from(chunk);
             let offset = 0;
 
@@ -63,7 +63,7 @@ export async function listOfFilesWithSize(type) {
                 mtime: st.mtime,
                 category: type,
             };
-        })
+        }),
     );
 
     const filtered = stats.filter((f) => !dateFileRegex.test(f.label));
@@ -158,15 +158,11 @@ export async function applyConfig(db, cfg, appliedAt) {
         .update(JSON.stringify(cfg))
         .digest("hex");
 
-    try {
-        const dbHash = await db.get(
-            "SELECT hash FROM config WHERE hash=? LIMIT 1",
-            [hash]
-        );
-        if (dbHash?.hash) return;
-    } catch (err) {
-        throw err;
-    }
+    const dbHash = await db.get(
+        "SELECT hash FROM config WHERE hash=? LIMIT 1",
+        [hash],
+    );
+    if (dbHash?.hash) return;
 
     await db.exec("BEGIN IMMEDIATE");
 
@@ -174,34 +170,34 @@ export async function applyConfig(db, cfg, appliedAt) {
         await db.run(
             `INSERT INTO config(name, edited_at, schema_version, applied_at, hash)
             VALUES (?, ?, ?, ?, ?)`,
-            [cfg.name, cfg.editedAt, cfg.version, appliedAt, hash]
+            [cfg.name, cfg.editedAt, cfg.version, appliedAt, hash],
         );
 
         const { id: configId } = await db.get(
-            "SELECT last_insert_rowid() AS id"
+            "SELECT last_insert_rowid() AS id",
         );
 
         const stmtInsVar = await db.prepare(
-            `INSERT INTO variable(id) VALUES (?) ON CONFLICT(id) DO NOTHING`
+            `INSERT INTO variable(id) VALUES (?) ON CONFLICT(id) DO NOTHING`,
         );
 
         const stmtOpenVer = await db.prepare(
             `SELECT id, var_name, unit_code, 'group'
             FROM variable_version
-            WHERE variable_id=? AND valid_to IS NULL`
+            WHERE variable_id=? AND valid_to IS NULL`,
         );
 
         const stmtCloseVer = await db.prepare(
-            `UPDATE variable_version SET valid_to=? WHERE id=?`
+            `UPDATE variable_version SET valid_to=? WHERE id=?`,
         );
 
         const stmtInsVer = await db.prepare(
             `INSERT INTO variable_version(variable_id, config_id, var_name, unit_code, 'group', valid_from, valid_to)
-            VALUES (?, ?, ?, ?, ?, ?, NULL)`
+            VALUES (?, ?, ?, ?, ?, ?, NULL)`,
         );
 
         const stmtCurrVerId = await db.prepare(
-            `SELECT id FROM variable_version WHERE variable_id=? AND valid_to IS NULL`
+            `SELECT id FROM variable_version WHERE variable_id=? AND valid_to IS NULL`,
         );
 
         let insertedVars = 0,
@@ -232,7 +228,7 @@ export async function applyConfig(db, cfg, appliedAt) {
                     v.name,
                     v.unit ?? null,
                     v.group ?? null,
-                    appliedAt
+                    appliedAt,
                 );
                 newVersions += stmtInsVer.stmt.changes ?? 0;
             }

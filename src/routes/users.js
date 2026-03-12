@@ -1,8 +1,7 @@
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import CryptoJS from "crypto-js";
-import { error } from "console";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,7 +42,7 @@ export default async function usersRoutes(fastify) {
             }
 
             const data = JSON.parse(
-                await fs.promises.readFile(USERS_PATH, "utf-8")
+                await fs.promises.readFile(USERS_PATH, "utf-8"),
             );
 
             if (ids.length === 1) {
@@ -64,7 +63,7 @@ export default async function usersRoutes(fastify) {
 
             await fs.promises.writeFile(
                 USERS_PATH,
-                JSON.stringify(data, null, 4)
+                JSON.stringify(data, null, 4),
             );
 
             return reply.status(200).send({ updated: ids });
@@ -83,14 +82,16 @@ export default async function usersRoutes(fastify) {
             }
 
             const data = JSON.parse(
-                await fs.promises.readFile(USERS_PATH, "utf-8")
+                await fs.promises.readFile(USERS_PATH, "utf-8"),
             );
 
-            ids.forEach((id) => delete data[id]);
+            for (const id of ids) {
+                delete data[id];
+            }
 
             await fs.promises.writeFile(
                 USERS_PATH,
-                JSON.stringify(data, null, 4)
+                JSON.stringify(data, null, 4),
             );
 
             return reply.status(200).send({ deleted: ids });
@@ -101,8 +102,8 @@ export default async function usersRoutes(fastify) {
 
     fastify.post("/api/v2/addUser", async (req, reply) => {
         try {
-            let data = JSON.parse(
-                await fs.promises.readFile(USERS_PATH, "utf-8")
+            const data = JSON.parse(
+                await fs.promises.readFile(USERS_PATH, "utf-8"),
             );
 
             const { id, userData } = req.body;
@@ -110,7 +111,7 @@ export default async function usersRoutes(fastify) {
             data[id] = { ...userData, password: encrypte(userData.password) };
             await fs.promises.writeFile(
                 USERS_PATH,
-                JSON.stringify(data, null, 4)
+                JSON.stringify(data, null, 4),
             );
             return reply.status(200).send({ added: id });
         } catch (err) {
@@ -120,8 +121,8 @@ export default async function usersRoutes(fastify) {
 
     fastify.put("/api/v2/chngPsswd", async (req, reply) => {
         try {
-            let data = JSON.parse(
-                await fs.promises.readFile(USERS_PATH, "utf-8")
+            const data = JSON.parse(
+                await fs.promises.readFile(USERS_PATH, "utf-8"),
             );
 
             const { userId, editedPassword } = req.body;
@@ -138,7 +139,7 @@ export default async function usersRoutes(fastify) {
             };
             await fs.promises.writeFile(
                 USERS_PATH,
-                JSON.stringify(data, null, 4)
+                JSON.stringify(data, null, 4),
             );
             return reply.status(201).send({ message: "success" });
         } catch (err) {

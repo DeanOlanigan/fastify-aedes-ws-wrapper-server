@@ -1,7 +1,7 @@
-import { safeJoinLogPath, slowDownStream } from "./utils.js";
-import fss from "fs/promises";
-import archiver from "archiver";
+import fss from "node:fs/promises";
 import { PassThrough } from "node:stream";
+import archiver from "archiver";
+import { safeJoinLogPath, slowDownStream } from "./utils.js";
 
 export default async function archiveRoutes(fastify) {
     // POST /api/v2/archive
@@ -37,7 +37,7 @@ export default async function archiveRoutes(fastify) {
                 .header("Content-Type", "application/zip")
                 .header(
                     "Content-Disposition",
-                    `attachment; filename="${filename}"`
+                    `attachment; filename="${filename}"`,
                 );
 
             const archive = archiver("zip", {
@@ -65,12 +65,12 @@ export default async function archiveRoutes(fastify) {
 
     // GET /api/v2/archive
     fastify.get("/api/v2/archive", async (req, reply) =>
-        getArchive(false, req, reply)
+        getArchive(false, req, reply),
     );
 
     // GET /api/v2/archiveThrottled
     fastify.get("/api/v2/archiveThrottled", async (req, reply) =>
-        getArchive(true, req, reply)
+        getArchive(true, req, reply),
     );
 }
 

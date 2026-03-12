@@ -42,7 +42,7 @@ export function overrideValue(uuid, val) {
         return;
     }
 
-    if (!isNaN(numericVal)) {
+    if (!Number.isNaN(numericVal)) {
         // Ограничиваем, как в nextValue (0..100)
         if (numericVal < 0) numericVal = 0;
         if (numericVal > 100) numericVal = 100;
