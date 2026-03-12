@@ -1,0 +1,59 @@
+{
+  "admin": {
+    "name": "Администратор",
+    "rights": [
+      "config.view",
+      "config.upload",
+      "config.create",
+      "config.open",
+      "config.edit",
+      "server.start",
+      "server.stop",
+      "server.restart",
+      "monitoring.view",
+      "monitoring.variables.manual_input",
+      "monitoring.variables.signal_editor",
+      "monitoring.variables.telecontrol",
+      "logs.view",
+      "logs.download",
+      "journal.view",
+      "journal.download",
+      "graphs.view",
+      "hmi.view",
+      "hmi.editor",
+      "hmi.upload",
+      "settings.view",
+      "settings.web_server.edit",
+      "settings.logs.edit",
+      "settings.journal.edit",
+      "security.users.edit",
+      "security.roles.edit",
+      "security.licensing.manage",
+      "system.software_update"
+    ]
+  },
+  "SulKm7yKYhhOXnmuSaaPZ": {
+    "name": "tester",
+    "rights": [
+      "hmi.view",
+      "hmi.editor",
+      "hmi.upload",
+      "settings.view",
+      "settings.web_server.edit",
+      "settings.logs.edit",
+      "settings.journal.edit",
+      "journal.view",
+      "journal.download",
+      "logs.view",
+      "logs.download",
+      "server.start",
+      "server.stop",
+      "server.restart",
+      "config.view",
+      "config.upload",
+      "config.create",
+      "config.open",
+      "config.edit"
+    ]
+  }
+}

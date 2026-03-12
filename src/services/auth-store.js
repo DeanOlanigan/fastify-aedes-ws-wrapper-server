@@ -1,7 +1,11 @@
 import { readFile, rename, writeFile } from "node:fs/promises";
+import path from "node:path";
 
-const USERS_FILE = "src/data/users/users.json";
-const ROLES_FILE = "src/data/roles/roles.json";
+const USERS_DIR = path.resolve("data/users");
+const ROLES_DIR = path.resolve("data/roles");
+
+const USERS_FILE = path.join(USERS_DIR, "users.json");
+const ROLES_FILE = path.join(ROLES_DIR, "roles.json");
 
 export async function loadUsers() {
     const raw = await readFile(USERS_FILE, "utf8");

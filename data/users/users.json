@@ -1,0 +1,25 @@
+{
+  "test_id": {
+    "login": "test",
+    "name": "тест",
+    "surname": "тест",
+    "grandname": "тест",
+    "position": "тест",
+    "roles": [
+      "admin"
+    ],
+    "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$NzFiYTQ0NDdiMWQ1MTU1MTQ2NGY5NjY0ODUxMzIyZDY$d7jYsi4+1Ump8HCHT7HufEZKJUMRPzmoSQLnEI0YGgU"
+  },
+  "l8-MOwaYF_FyMG-8CfWSH": {
+    "login": "admin",
+    "surname": "админ",
+    "name": "фыв",
+    "grandname": "йцу",
+    "position": "фыв",
+    "roles": [
+      "SulKm7yKYhhOXnmuSaaPZ"
+    ],
+    "password": "god",
+    "passwordHash": "$argon2id$v=19$m=65536,t=3,p=4$ranp7jC8Bs0Z28AANo0xlg$sNZyYFOed3aVNO/MYVG9fm/tFxLuWhtvdWQRjV9DsnA"
+  }
+}

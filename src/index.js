@@ -19,7 +19,7 @@ import configRoutes from "./routes/config.js";
 import dbRoutes from "./routes/db.js";
 import healthRoutes from "./routes/health.js";
 import hmiRoutes from "./routes/hmi.js";
-import lecenseRoutes from "./routes/lecense.js";
+import licenseRoutes from "./routes/license.js";
 import logRoutes from "./routes/log.js";
 import { authRoutes } from "./routes/login.js";
 import mqttRoutes from "./routes/mqtt.js";
@@ -41,7 +41,7 @@ const fastify = await createHttpServer({ logLevel: LOG_LEVEL });
 attachMqttOverWs({ fastify, broker, path: WS_PATH });
 
 /* await fastify.register(sqlitePlugin, {
-    filename: "./src/data/db/sd/test.db",
+    filename: "./data/db/sd/test.db",
 }); */
 
 // routes
@@ -55,7 +55,7 @@ await fastify.register(archiveRoutes);
 await fastify.register(dbRoutes);
 await fastify.register(settingsRoutes);
 await fastify.register(updatesRoutes);
-await fastify.register(lecenseRoutes);
+await fastify.register(licenseRoutes);
 await fastify.register(usersRoutes);
 await fastify.register(rolesRoutes);
 await fastify.register(authRoutes, { prefix: "/api/v2/auth" });

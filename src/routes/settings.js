@@ -1,15 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const SETTINGS_DIR = path.resolve("data/settings");
+const SETTINGS_PATH = path.join(SETTINGS_DIR, "settings.json");
 
 export default async function settingsRoutes(fastify) {
+
+    await fs.promises.mkdir(SETTINGS_DIR, { recursive: true });
+
     fastify.get("/api/v2/settings", async (_, reply) => {
-        const filepath = path.join(__dirname, "../data/settings/settings.json");
         try {
-            const data = await fs.promises.readFile(filepath, "utf-8");
+            const data = await fs.promises.readFile(SETTINGS_PATH, "utf-8");
             reply.type("application/json");
             reply.status(200);
             return JSON.parse(data);
@@ -19,9 +20,8 @@ export default async function settingsRoutes(fastify) {
     });
 
     fastify.put("/api/v2/setsettings", async (req, reply) => {
-        const filepath = path.join(__dirname, "../data/settings/settings.json");
         try {
-            await fs.promises.writeFile(filepath, JSON.stringify(req.body));
+            await fs.promises.writeFile(SETTINGS_PATH, JSON.stringify(req.body));
             reply.status(200);
             return reply.send(req.body);
         } catch (err) {

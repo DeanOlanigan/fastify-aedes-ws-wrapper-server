@@ -1,16 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const LICENSE_DIR = path.resolve("data/settings");
+const LICENSE_PATH = path.join(LICENSE_DIR, "license.json");
 
-export default function lecenseRoutes(fastify) {
+export default async function licenseRoutes(fastify) {
+
+    await fs.promises.mkdir(LICENSE_DIR, { recursive: true });
+
     fastify.get("/api/v2/checkLecense", async (req, reply) => {
-        const filepath = path.join(__dirname, "../data/settings/lecense.json");
         const { uuid } = req.query;
         try {
-            const data = await fs.promises.readFile(filepath, "utf-8");
+            const data = await fs.promises.readFile(LICENSE_PATH, "utf-8");
             const dataJSON = JSON.parse(data);
 
             const isActivated = dataJSON.find((item) => item.uuid === uuid);
@@ -31,10 +32,9 @@ export default function lecenseRoutes(fastify) {
     });
 
     fastify.post("/api/v2/activateLec", async (req, reply) => {
-        const filepath = path.join(__dirname, "../data/settings/lecense.json");
         const { uuid, key } = req.body;
         try {
-            const data = await fs.promises.readFile(filepath, "utf-8");
+            const data = await fs.promises.readFile(LICENSE_PATH, "utf-8");
             const dataJSON = JSON.parse(data);
 
             const notreData = dataJSON.find((item) => item.uuid === uuid);
@@ -46,7 +46,7 @@ export default function lecenseRoutes(fastify) {
             if (notreData.key === key) {
                 notreData.isActive = true;
                 await fs.promises.writeFile(
-                    filepath,
+                    LICENSE_PATH,
                     JSON.stringify(dataJSON, null, 2),
                 );
                 reply.type("application/json").status(200).send(true);

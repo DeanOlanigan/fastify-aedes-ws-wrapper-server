@@ -6,7 +6,7 @@ export default async function healthRoutes(fastify) {
 
     // GET /fun
     fastify.get("/fun", async (_, reply) => {
-        const file = await fss.readFile("./src/data/out.bin");
+        const file = await fss.readFile("./data/out.bin");
         return reply.code(200).send(file);
     });
 }

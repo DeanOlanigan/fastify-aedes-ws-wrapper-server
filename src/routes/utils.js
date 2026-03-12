@@ -4,7 +4,7 @@ import path from "node:path";
 import { Transform } from "node:stream";
 import { XMLParser } from "fast-xml-parser";
 
-export const BASE_DIR = path.resolve("./src/data/logs");
+export const BASE_DIR = path.resolve("data/logs");
 
 const ALLOWED_DIRS = new Set(["sd", "internal"]);
 const dateFileRegex = /\.\d{8}T\d{6}\./;

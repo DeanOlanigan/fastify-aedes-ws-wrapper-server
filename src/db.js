@@ -4,7 +4,7 @@ import sqlite3 from "sqlite3";
 
 export const sqlitePlugin = fp(async (fastify, opts) => {
     const db = await open({
-        filename: opts.filename ?? "./src/data/db/sd/sqlite.db",
+        filename: opts.filename ?? "./data/db/sd/sqlite.db",
         driver: sqlite3.Database,
     });
 

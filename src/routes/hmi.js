@@ -7,10 +7,11 @@ import { send } from "./utils.js";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const HMI_DIR = path.resolve("data/hmi");
+
 export default async function hmiRoutes(fastify) {
     fastify.get("/api/v2/hmi/projects", async (_, reply) => {
-        const dirPath = path.resolve("./src/data/hmi");
-        const entries = await fss.readdir(dirPath, {
+        const entries = await fss.readdir(HMI_DIR, {
             withFileTypes: true,
         });
         const metaFiles = entries.filter((e) => e.name.endsWith(".meta.json"));
@@ -19,7 +20,7 @@ export default async function hmiRoutes(fastify) {
             metaFiles.map(async (file) => {
                 const baseName = file.name.replace(".meta.json", "");
                 const st = await fss.stat(
-                    path.join(dirPath, `${baseName}.tir-project`),
+                    path.join(HMI_DIR, `${baseName}.tir-project`),
                 );
 
                 return {
@@ -40,7 +41,7 @@ export default async function hmiRoutes(fastify) {
 
     fastify.get("/api/v2/hmi/project/:name/thumbnail", async (req, reply) => {
         const { name } = req.params;
-        const thumbPath = path.resolve("./src/data/hmi", `${name}.thumb.png`);
+        const thumbPath = path.resolve(HMI_DIR, `${name}.thumb.png`);
 
         try {
             await fss.access(thumbPath);
@@ -60,11 +61,10 @@ export default async function hmiRoutes(fastify) {
             return send(reply, 400, "Invalid project name");
         }
 
-        const dirPath = path.resolve("./src/data/hmi");
         const fileName = name.endsWith(".tir-project")
             ? name
             : `${name}.tir-project`;
-        const fullPath = path.join(dirPath, fileName);
+        const fullPath = path.join(HMI_DIR, fileName);
 
         await delay(1500);
 
@@ -92,13 +92,12 @@ export default async function hmiRoutes(fastify) {
 
         // Базовое имя без расширения
         const baseName = name.replace(".tir-project", "");
-        const dirPath = path.resolve("./src/data/hmi");
 
         // Список всех файлов, связанных с проектом
         const filesToDelete = [
-            path.join(dirPath, `${baseName}.tir-project`),
-            path.join(dirPath, `${baseName}.meta.json`),
-            path.join(dirPath, `${baseName}.thumb.png`),
+            path.join(HMI_DIR, `${baseName}.tir-project`),
+            path.join(HMI_DIR, `${baseName}.meta.json`),
+            path.join(HMI_DIR, `${baseName}.thumb.png`),
         ];
 
         try {
@@ -126,12 +125,11 @@ export default async function hmiRoutes(fastify) {
 
     fastify.put("/api/v2/hmi/project/:name", async (req, reply) => {
         const { name } = req.params;
-        const dirPath = path.resolve("./src/data/hmi");
 
         const fileName = name.endsWith(".tir-project")
             ? name
             : `${name}.tir-project`;
-        const fullPath = path.join(dirPath, fileName);
+        const fullPath = path.join(HMI_DIR, fileName);
 
         const data = await req.file();
         if (!data) {
@@ -141,7 +139,7 @@ export default async function hmiRoutes(fastify) {
         await delay(1500);
 
         try {
-            await fss.mkdir(dirPath, { recursive: true });
+            await fss.mkdir(HMI_DIR, { recursive: true });
 
             await pipeline(data.file, fs.createWriteStream(fullPath));
 
@@ -154,7 +152,7 @@ export default async function hmiRoutes(fastify) {
             );
             if (thumbEntry) {
                 await fss.writeFile(
-                    path.join(dirPath, `${name}.thumb.png`),
+                    path.join(HMI_DIR, `${name}.thumb.png`),
                     thumbEntry.getData(),
                 );
             }
@@ -165,7 +163,7 @@ export default async function hmiRoutes(fastify) {
             );
             if (manifestEntry) {
                 await fss.writeFile(
-                    path.join(dirPath, `${name}.meta.json`),
+                    path.join(HMI_DIR, `${name}.meta.json`),
                     manifestEntry.getData(),
                 );
             }
@@ -179,15 +177,14 @@ export default async function hmiRoutes(fastify) {
     fastify.patch("/api/v2/hmi/project/:oldName/rename", async (req, reply) => {
         const { oldName } = req.params;
         const { newName } = req.body;
-        const dirPath = path.resolve("./src/data/hmi");
 
         const extensions = [".tir-project", ".meta.json", ".thumb.png"];
 
         try {
             await Promise.all(
                 extensions.map(async (ext) => {
-                    const oldPath = path.join(dirPath, `${oldName}${ext}`);
-                    const newPath = path.join(dirPath, `${newName}${ext}`);
+                    const oldPath = path.join(HMI_DIR, `${oldName}${ext}`);
+                    const newPath = path.join(HMI_DIR, `${newName}${ext}`);
                     // Используем try/catch внутри, так как превью может не быть
                     try {
                         await fss.access(oldPath);

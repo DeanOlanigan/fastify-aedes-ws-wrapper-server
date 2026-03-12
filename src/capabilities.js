@@ -49,8 +49,10 @@ export const PERMISSIONS = new Map([
     ["settings.web_server.edit", { requiredCapabilities: [] }],
     ["settings.logs.edit", { requiredCapabilities: ["feature.logs"] }],
     ["settings.journal.edit", { requiredCapabilities: ["feature.journal"] }],
+
     ["security.users.edit", { requiredCapabilities: ["feature.user_management"] }],
     ["security.roles.edit", { requiredCapabilities: ["feature.user_management"] }],
-    ["system.software_update", { requiredCapabilities: ["feature.software_update"] }],
     ["security.licensing.manage", { requiredCapabilities: ["feature.licensing"] }],
+
+    ["system.software_update", { requiredCapabilities: ["feature.software_update"] }],
 ]);
