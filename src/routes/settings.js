@@ -19,7 +19,7 @@ export default async function settingsRoutes(fastify) {
         }
     });
 
-    fastify.put("/api/v2/setsettings", async (req, reply) => {
+    fastify.put("/api/v2/settings", async (req, reply) => {
         try {
             await fs.promises.writeFile(SETTINGS_PATH, JSON.stringify(req.body));
             reply.status(200);

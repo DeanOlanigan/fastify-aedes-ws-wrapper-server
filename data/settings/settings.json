@@ -1,1 +1,1 @@
-{"webServer":{"port":4444,"sessionTtlMinutes":200,"https":false,"certificate":null},"retention":[{"name":"journal.events","size":2,"files":1,"archive":true},{"name":"journal.telemetry","size":0.5,"files":1,"archive":true},{"name":"logs","size":0.5,"files":1,"archive":false}]}
+{"webServer":{"port":4447,"sessionTtlHours":10,"https":false,"certificateId":null,"certificateFile":null},"retention":{"journalEvents":{"size":4,"files":1,"archive":true},"journalTelemetry":{"size":4,"files":1,"archive":false},"logs":{"size":4,"files":1,"archive":false}}}
