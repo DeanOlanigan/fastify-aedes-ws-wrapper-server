@@ -1,0 +1,225 @@
+// ==================== \\
+//      EVENT LIST      \\
+// ==================== \\
+"variable.value_changed",
+"variable.state_changed",
+"variable.quality_changed",
+"variable.threshold_high",
+"variable.threshold_low",
+
+"user.login",
+"user.logout",
+"user.login_failed",
+"user.session_expired",
+
+"event.acknowledged",
+
+"config.updated",
+
+"hmi.opened",
+"hmi.upload",
+"hmi.saved",
+"hmi.deleted",
+
+"server.started",
+"server.stopped",
+"server.restarted",
+"server.error",
+"server.warning",
+
+"settings.webserver.changed",
+"settings.retention.changed",
+
+"security.users.changed",
+"security.users.deleted",
+"security.roles.changed",
+"security.roles.deleted",
+"security.license.changed",
+"security.license.expired",
+
+"system.software_update.started",
+"system.software_update.finished",
+"system.software_update.failed",
+"system.software_update.canceled",
+
+// ==================== \\
+// MQTT PAYLOAD EXAMPLE \\
+// ==================== \\
+{
+  "schemaVersion": 1,
+  "id": "019ce0c4-cc6a-7449-8480-94f2da98c139",
+  "ts": 1773297519722,
+  "category": "variable | user | event | config | hmi | server | settings | security | system",
+  "event": "variable.value_changed", // event list
+  "severity": "info | warning | error | critical",
+  "message": "Давление в линии: 8.1 бар → 8.47 бар",
+
+  "ack": { // or null
+    "state": "pending | acknowledged",
+    "by": {
+      "id": "", // optional
+      "login": "", // optional
+      "name": "", // optional
+    },
+    "at": null,
+  },
+
+  "actor": { // or null
+    "type": "user | system",
+    "id": "", // optional
+    "login": "", // optional
+    "name": "", // optional
+  },
+
+  "payload": {
+  }
+}
+
+// ==================== \\
+//   PAYLOADS EXAMPLES  \\
+// ==================== \\
+
+// variable.value_changed
+{
+  "variable": {
+    "id": "",
+    "name": "",
+    "desc": "", // optional
+    "dataType": "",
+    "unit": "", // optional
+  },
+  "change": {
+    "oldValue": 8.1,
+    "newValue": 8.47,
+    "delta": 0.37 // optional
+  },
+  "limits": {
+    "low": 8,
+    "high": 10
+  },
+  "quality": ""
+},
+// variable.threshold_high | variable.threshold_low
+{
+  "variable": {
+    "id": "",
+    "name": "",
+    "desc": "", // optional
+    "dataType": "",
+    "unit": "", // optional
+    "group": "state | warn | danger"
+  },
+  "value": 10.2,
+  "threshold": {
+    "kind": "high",
+    "value": 10,
+  },
+  "limits": {
+    "low": 8,
+    "high": 10
+  },
+  "quality": ""
+},
+// user.login | user.logout | user.login_failed | user.session_expired
+{
+  "user": {
+    "id": "", // optional
+    "login": "",
+    "name": "", // optional
+  },
+  "session": {
+    "id": "", // optional
+    "ip": "" // optional
+  },
+  "reason": "" // optional
+}
+// event.acknowledged
+{
+  "targetEvent": {
+    "id": "019ce0c4-cc6a-7449-8480-94f2da98c139",
+    "event": "", // event list
+    "message": "" // optional
+  }
+}
+// config.updated
+{
+  "fromName": "",
+  "fromHash": "",
+  "toName": "",
+  "toHash": "",
+}
+// hmi.opened | hmi.saved
+{
+  "project": {
+    "name": ""
+  }
+}
+// hmi.upload | hmi.deleted
+{
+  "file": {
+    "name": "",
+    "size": "",
+  }
+}
+// server.started | server.stopped | server.restarted | server.error | server.warning
+{
+  "scope": "",
+  "reason": "",
+  "details": "", // optional
+}
+// settings.webserver.changed | settings.retention.changed
+{
+  "settings": {
+    "section": ""
+  },
+  "changes": [
+    {
+      "field": "",
+      "oldValue": "",
+      "newValue": ""
+    }
+  ]
+}
+// security.users.changed | security.users.deleted
+{
+  "user": {
+    "id": "",
+    "login": "",
+    "name": "", // optional
+  },
+  "changes": [ // optional
+    {
+      "field": "",
+      "oldValue": "",
+      "newValue": ""
+    }
+  ]
+}
+// security.roles.changed | security.roles.deleted
+{
+  "role": {
+    "id": "",
+    "name": "",
+  },
+  "changes": [ // optional
+    {
+      "field": "",
+      "oldValue": "",
+      "newValue": ""
+    }
+  ]
+}
+// security.license.changed | security.license.expired
+{
+  "key": "",
+  "status": "updated | expired"
+}
+// system.software_update.started | system.software_update.finished | system.software_update.failed | system.software_update.canceled
+{
+  "update": {
+    "fromVersion": "",
+    "toVersion": "",
+    "packageName": ""
+  },
+  "details": "",
+}
