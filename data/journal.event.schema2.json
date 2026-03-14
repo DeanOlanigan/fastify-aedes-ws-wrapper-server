@@ -1,0 +1,1346 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/schemas/journal-event.schema.json",
+    "title": "Journal Event",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "#/$defs/baseEvent"
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.value_changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/variableChangePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.state_changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/variableChangePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.quality_changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/variableChangePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.threshold_high"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/variableThresholdPayload"
+                            },
+                            {
+                                "properties": {
+                                    "threshold": {
+                                        "properties": {
+                                            "kind": {
+                                                "const": "high"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.threshold_low"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/variableThresholdPayload"
+                            },
+                            {
+                                "properties": {
+                                    "threshold": {
+                                        "properties": {
+                                            "kind": {
+                                                "const": "low"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.login"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.logout"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.login_failed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.session_expired"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "event.acknowledged"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "event"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/eventAcknowledgedPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "config.updated"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "config"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/configUpdatedPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.opened"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiProjectPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.uploaded"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiFilePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.saved"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiProjectPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.deleted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiFilePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.started"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.stopped"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.restarted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.error"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.warning"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "settings.webserver.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "settings"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/settingsChangedPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "settings.retention.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "settings"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/settingsChangedPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.users.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityUserPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.users.deleted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityUserPayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.roles.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityRolePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.roles.deleted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityRolePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.license.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/securityLicensePayload"
+                            },
+                            {
+                                "properties": {
+                                    "status": {
+                                        "const": "updated"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.license.expired"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/securityLicensePayload"
+                            },
+                            {
+                                "properties": {
+                                    "status": {
+                                        "const": "expired"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.started"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.finished"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.failed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.canceled"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
+        }
+    ],
+    "$defs": {
+        "severity": {
+            "type": "string",
+            "enum": [
+                "info",
+                "warning",
+                "error",
+                "critical"
+            ]
+        },
+        "category": {
+            "type": "string",
+            "enum": [
+                "variable",
+                "user",
+                "event",
+                "config",
+                "hmi",
+                "server",
+                "settings",
+                "security",
+                "system"
+            ]
+        },
+        "eventType": {
+            "type": "string",
+            "enum": [
+                "variable.value_changed",
+                "variable.state_changed",
+                "variable.quality_changed",
+                "variable.threshold_high",
+                "variable.threshold_low",
+                "user.login",
+                "user.logout",
+                "user.login_failed",
+                "user.session_expired",
+                "event.acknowledged",
+                "config.updated",
+                "hmi.opened",
+                "hmi.uploaded",
+                "hmi.saved",
+                "hmi.deleted",
+                "server.started",
+                "server.stopped",
+                "server.restarted",
+                "server.error",
+                "server.warning",
+                "settings.webserver.changed",
+                "settings.retention.changed",
+                "security.users.changed",
+                "security.users.deleted",
+                "security.roles.changed",
+                "security.roles.deleted",
+                "security.license.changed",
+                "security.license.expired",
+                "system.software_update.started",
+                "system.software_update.finished",
+                "system.software_update.failed",
+                "system.software_update.canceled"
+            ]
+        },
+        "personRef": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "login": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "additionalProperties": false
+        },
+        "ack": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "acknowledged"
+                    ]
+                },
+                "by": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/personRef"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "at": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "minimum": 0
+                }
+            },
+            "required": [
+                "state",
+                "by",
+                "at"
+            ],
+            "additionalProperties": false
+        },
+        "actor": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "system"
+                    ]
+                },
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "login": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "additionalProperties": false
+        },
+        "variableRef": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "dataType": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "unit": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "group": {
+                    "type": "string",
+                    "enum": [
+                        "state",
+                        "warn",
+                        "danger"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "dataType",
+                "group"
+            ],
+            "additionalProperties": false
+        },
+        "limits": {
+            "type": "object",
+            "properties": {
+                "low": {
+                    "type": "number"
+                },
+                "high": {
+                    "type": "number"
+                }
+            },
+            "additionalProperties": false
+        },
+        "changeRecord": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "oldValue": {},
+                "newValue": {}
+            },
+            "required": [
+                "field",
+                "oldValue",
+                "newValue"
+            ],
+            "additionalProperties": false
+        },
+        "baseEvent": {
+            "type": "object",
+            "properties": {
+                "schemaVersion": {
+                    "type": "integer",
+                    "const": 1
+                },
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "ts": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "category": {
+                    "$ref": "#/$defs/category"
+                },
+                "event": {
+                    "$ref": "#/$defs/eventType"
+                },
+                "severity": {
+                    "$ref": "#/$defs/severity"
+                },
+                "message": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "ack": {
+                    "$ref": "#/$defs/ack"
+                },
+                "actor": {
+                    "$ref": "#/$defs/actor"
+                },
+                "payload": {
+                    "type": "object"
+                }
+            },
+            "required": [
+                "schemaVersion",
+                "id",
+                "ts",
+                "category",
+                "event",
+                "severity",
+                "message",
+                "ack",
+                "actor",
+                "payload"
+            ],
+            "additionalProperties": false
+        },
+        "variableChangePayload": {
+            "type": "object",
+            "properties": {
+                "variable": {
+                    "$ref": "#/$defs/variableRef"
+                },
+                "change": {
+                    "type": "object",
+                    "properties": {
+                        "oldValue": {},
+                        "newValue": {},
+                        "delta": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "oldValue",
+                        "newValue"
+                    ],
+                    "additionalProperties": false
+                },
+                "limits": {
+                    "$ref": "#/$defs/limits"
+                },
+                "quality": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "variable",
+                "change"
+            ],
+            "additionalProperties": false
+        },
+        "variableThresholdPayload": {
+            "type": "object",
+            "properties": {
+                "variable": {
+                    "$ref": "#/$defs/variableRef"
+                },
+                "value": {},
+                "threshold": {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "enum": [
+                                "high",
+                                "low"
+                            ]
+                        },
+                        "value": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "kind",
+                        "value"
+                    ],
+                    "additionalProperties": false
+                },
+                "limits": {
+                    "$ref": "#/$defs/limits"
+                },
+                "quality": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "variable",
+                "value",
+                "threshold"
+            ],
+            "additionalProperties": false
+        },
+        "userSessionPayload": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "login": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "name": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "login"
+                    ],
+                    "additionalProperties": false
+                },
+                "session": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "ip": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "reason": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "user"
+            ],
+            "additionalProperties": false
+        },
+        "eventAcknowledgedPayload": {
+            "type": "object",
+            "properties": {
+                "targetEvent": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "event": {
+                            "$ref": "#/$defs/eventType"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "event"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "targetEvent"
+            ],
+            "additionalProperties": false
+        },
+        "configUpdatedPayload": {
+            "type": "object",
+            "properties": {
+                "fromName": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "fromHash": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "toName": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "toHash": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "fromName",
+                "fromHash",
+                "toName",
+                "toHash"
+            ],
+            "additionalProperties": false
+        },
+        "hmiProjectPayload": {
+            "type": "object",
+            "properties": {
+                "project": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "project"
+            ],
+            "additionalProperties": false
+        },
+        "hmiFilePayload": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "size": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "size"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "file"
+            ],
+            "additionalProperties": false
+        },
+        "serverEventPayload": {
+            "type": "object",
+            "properties": {
+                "scope": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "reason": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "details": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "scope",
+                "reason"
+            ],
+            "additionalProperties": false
+        },
+        "settingsChangedPayload": {
+            "type": "object",
+            "properties": {
+                "settings": {
+                    "type": "object",
+                    "properties": {
+                        "section": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "section"
+                    ],
+                    "additionalProperties": false
+                },
+                "changes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/changeRecord"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "settings",
+                "changes"
+            ],
+            "additionalProperties": false
+        },
+        "securityUserPayload": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "login": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "login"
+                    ],
+                    "additionalProperties": false
+                },
+                "changes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/changeRecord"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "user"
+            ],
+            "additionalProperties": false
+        },
+        "securityRolePayload": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "name": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "name"
+                    ],
+                    "additionalProperties": false
+                },
+                "changes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/changeRecord"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "role"
+            ],
+            "additionalProperties": false
+        },
+        "securityLicensePayload": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "updated",
+                        "expired"
+                    ]
+                }
+            },
+            "required": [
+                "key",
+                "status"
+            ],
+            "additionalProperties": false
+        },
+        "softwareUpdatePayload": {
+            "type": "object",
+            "properties": {
+                "update": {
+                    "type": "object",
+                    "properties": {
+                        "fromVersion": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "toVersion": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "packageName": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "fromVersion",
+                        "toVersion",
+                        "packageName"
+                    ],
+                    "additionalProperties": false
+                },
+                "details": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "update"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

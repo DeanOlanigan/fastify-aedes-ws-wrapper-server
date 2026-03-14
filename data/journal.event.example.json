@@ -1,0 +1,37 @@
+{
+    "$schema": "./journal.event.schema2.json",
+    "schemaVersion": 1,
+    "id": "asd",
+    "ts": 123123123123,
+    "category": "variable",
+    "event": "variable.value_changed",
+    "severity": "info",
+    "message": "Изменение переменной",
+    "ack": {
+        "state": "pending",
+        "at": null,
+        "by": null
+    },
+    "actor": {
+        "type": "system"
+    },
+    "payload": {
+        "variable": {
+            "id": "asdasd",
+            "name": "asd",
+            "dataType": "number",
+            "unit": "мм",
+            "desc": "asdasd",
+            "group": "state"
+        },
+        "change": {
+            "oldValue": 12,
+            "newValue": 22
+        },
+        "limits": {
+            "low": 0,
+            "high": 50
+        },
+        "quality": "qweqwe"
+    }
+}
