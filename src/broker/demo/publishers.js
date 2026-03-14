@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { graph } from "./graph.js";
-import { journal } from "./journal.js";
+import { journal } from "./journal.new.js";
 import { log } from "./log.js";
 import { metrics } from "./metrics.js";
 import { tick } from "./monitoring.js";
