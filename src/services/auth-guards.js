@@ -1,7 +1,13 @@
-import { validateSessionUser } from "./validateSessionUser";
+import { validateSessionUser } from "./validateSessionUser.js";
 
-export async function requireAuth(request) {
-    return validateSessionUser(request);
+export async function requireAuth(request, reply) {
+    const res = await validateSessionUser(request);
+
+    if (!res.authenticated) {
+        return reply.code(401).send({ error: "UNAUTHORIZED" });
+    }
+
+    request.user = res.currentUser;
 }
 
 export function requireRight(right) {

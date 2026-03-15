@@ -43,6 +43,7 @@
       "settings.logs.edit",
       "settings.journal.edit",
       "journal.view",
+      "journal.ack",
       "journal.download",
       "logs.view",
       "logs.download",

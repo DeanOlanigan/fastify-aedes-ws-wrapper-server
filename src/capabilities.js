@@ -1,19 +1,17 @@
-export const CAPABILITIES = new Set(
-    [
-        "feature.protocol.gpio",
-        "feature.protocol.modbus_tcp",
-        "feature.protocol.modbus_rtu",
-        "feature.protocol.iec104",
-        "feature.protocol.goose",
-        "feature.logs",
-        "feature.journal",
-        "feature.graphs",
-        "feature.hmi",
-        "feature.user_management",
-        "feature.software_update",
-        "feature.licensing",
-    ]
-)
+export const CAPABILITIES = new Set([
+    "feature.protocol.gpio",
+    "feature.protocol.modbus_tcp",
+    "feature.protocol.modbus_rtu",
+    "feature.protocol.iec104",
+    "feature.protocol.goose",
+    "feature.logs",
+    "feature.journal",
+    "feature.graphs",
+    "feature.hmi",
+    "feature.user_management",
+    "feature.software_update",
+    "feature.licensing",
+]);
 
 export const PERMISSIONS = new Map([
     ["config.view", { requiredCapabilities: [] }],
@@ -38,6 +36,7 @@ export const PERMISSIONS = new Map([
 
     ["journal.view", { requiredCapabilities: ["feature.journal"] }],
     ["journal.download", { requiredCapabilities: ["feature.journal"] }],
+    ["journal.ack", { requiredCapabilities: ["feature.journal"] }],
 
     ["graphs.view", { requiredCapabilities: ["feature.graphs"] }],
 
@@ -50,9 +49,21 @@ export const PERMISSIONS = new Map([
     ["settings.logs.edit", { requiredCapabilities: ["feature.logs"] }],
     ["settings.journal.edit", { requiredCapabilities: ["feature.journal"] }],
 
-    ["security.users.edit", { requiredCapabilities: ["feature.user_management"] }],
-    ["security.roles.edit", { requiredCapabilities: ["feature.user_management"] }],
-    ["security.licensing.manage", { requiredCapabilities: ["feature.licensing"] }],
+    [
+        "security.users.edit",
+        { requiredCapabilities: ["feature.user_management"] },
+    ],
+    [
+        "security.roles.edit",
+        { requiredCapabilities: ["feature.user_management"] },
+    ],
+    [
+        "security.licensing.manage",
+        { requiredCapabilities: ["feature.licensing"] },
+    ],
 
-    ["system.software_update", { requiredCapabilities: ["feature.software_update"] }],
+    [
+        "system.software_update",
+        { requiredCapabilities: ["feature.software_update"] },
+    ],
 ]);

@@ -1,11 +1,141 @@
 import { createServer as createTcpServer } from "node:net";
 import Aedes from "aedes";
-import { overrideValue } from "./demo/monitoring.js";
+import { createCommandServices } from "../services/createCommandServices.js";
 
-const COMMAND_TOPIC_PATTERN = /^commands\/node\/(.+)$/;
+const TOPICS = {
+    COMMAND_NODE_WRITE: /^commands\/node\/write\/(.+)$/,
+    COMMAND_JOURNAL_ACK: "commands/journal/ack",
+};
+
+function safeJsonParse(payload) {
+    try {
+        return JSON.parse(payload.toString());
+    } catch {
+        return undefined;
+    }
+}
+
+function createCommandDispatcher({ logger, services }) {
+    async function dispatch(packet, client) {
+        if (!packet?.topic) return;
+
+        const writeMatch = packet.topic.match(TOPICS.COMMAND_NODE_WRITE);
+        if (writeMatch) {
+            const varId = writeMatch[1];
+            const data = safeJsonParse(packet.payload);
+
+            if (!data || typeof data !== "object") {
+                logger?.warn(
+                    { topic: packet.topic, by: client?.id ?? "server" },
+                    "invalid JSON payload for telecontrol command",
+                );
+                return;
+            }
+
+            if (
+                !data.commandId ||
+                data.type !== "variable.telecontrol" ||
+                !data.payload?.varId
+            ) {
+                logger?.warn(
+                    {
+                        topic: packet.topic,
+                        by: client?.id ?? "server",
+                        commandId: data.commandId,
+                    },
+                    "invalid telecontrol command",
+                );
+            }
+
+            logger?.info(
+                {
+                    topic: packet.topic,
+                    by: client?.id ?? "server",
+                    commandId: data.commandId,
+                    varId: data.payload.varId,
+                },
+                "received telecontrol command",
+            );
+
+            const valueToSet =
+                data.payload.data.v !== undefined ? data.payload.data.v : data;
+
+            logger?.info(
+                {
+                    topic: packet.topic,
+                    varId,
+                    by: client?.id ?? "server",
+                },
+                "processing node write command",
+            );
+
+            await services.nodeCommands.writeValue({
+                nodeId: varId,
+                value: valueToSet,
+            });
+            return;
+        }
+
+        if (packet.topic === TOPICS.COMMAND_JOURNAL_ACK) {
+            const data = safeJsonParse(packet.payload);
+
+            if (!data || typeof data !== "object") {
+                logger?.warn(
+                    { topic: packet.topic, by: client?.id ?? "server" },
+                    "invalid JSON payload for journal ack command",
+                );
+                return;
+            }
+
+            if (
+                !data.commandId ||
+                data.type !== "journal.ack" ||
+                !data.payload?.eventId
+            ) {
+                logger?.warn(
+                    {
+                        topic: packet.topic,
+                        by: client?.id ?? "server",
+                        commandId: data.commandId,
+                    },
+                    "invalid journal ack command",
+                );
+            }
+
+            logger?.info(
+                {
+                    topic: packet.topic,
+                    by: client?.id ?? "server",
+                    commandId: data.commandId,
+                    eventId: data.payload.eventId,
+                },
+                "received journal ack command",
+            );
+
+            await services.journalCommands.ackEvent({
+                commandId: data.commandId,
+                requestedAt: data.requestedAt ?? null,
+                requestedBy: data.requestedBy ?? null,
+                payload: {
+                    eventId: data.payload.eventId,
+                    event: data.payload.event,
+                    message: data.payload.message,
+                },
+                requestedByClientId: client?.id ?? "server",
+                raw: data,
+            });
+            return;
+        }
+    }
+
+    return { dispatch };
+}
 
 export async function createBroker({ mqttPort, logger }) {
     const broker = await Aedes();
+
+    const services = createCommandServices({ logger, broker });
+    const dispatcher = createCommandDispatcher({ logger, services });
 
     broker.on("client", (client) =>
         logger?.info({ id: client?.id }, "mqtt client connected"),
@@ -13,10 +143,10 @@ export async function createBroker({ mqttPort, logger }) {
     broker.on("clientDisconnect", (client) =>
         logger?.info({ id: client?.id }, "mqtt client disconnected"),
     );
-    broker.on("publish", (packet, client) => {
+    broker.on("publish", async (packet, client) => {
         // Игнорируем системные сообщения и то, что публикует сам сервер (если client=null)
         // Хотя для команд от HMI client всегда будет присутствовать.
-        if (!packet.topic) return;
+        if (!packet?.topic) return;
 
         logger?.debug(
             {
@@ -28,32 +158,17 @@ export async function createBroker({ mqttPort, logger }) {
             "mqtt publish",
         );
 
-        const match = packet.topic.match(COMMAND_TOPIC_PATTERN);
-        if (match) {
-            const uuid = match[1]; // id из топика: commands/node/{uuid}
-            const payloadStr = packet.payload.toString();
-
-            try {
-                // Ожидаем, что HMI шлет JSON, например: { "v": 55.5, "user": "admin" }
-                // Или просто значение. Давай поддержим JSON для гибкости.
-                const data = JSON.parse(payloadStr);
-                // Извлекаем значение (предположим формат { v: ... })
-                const valueToSet = data.v !== undefined ? data.v : data;
-
-                console.log(
-                    `[CMD] Received command for ${uuid}:`,
-                    valueToSet,
-                    `from client ${client?.id}`,
-                );
-
-                // Применяем изменение к "физической модели"
-                overrideValue(uuid, valueToSet);
-            } catch (e) {
-                console.error(
-                    `[CMD] Failed to process command for ${uuid}:`,
-                    e.message,
-                );
-            }
+        try {
+            await dispatcher.dispatch(packet, client);
+        } catch (error) {
+            logger?.error(
+                {
+                    error,
+                    topic: packet?.topic,
+                    by: client?.id ?? "server",
+                },
+                "failed to dispatch command",
+            );
         }
     });
 
@@ -70,7 +185,7 @@ export async function createBroker({ mqttPort, logger }) {
         });
     }
 
-    function stop() {
+    async function stop() {
         return new Promise((resolve, reject) => {
             tcpServer.close((e) => (e ? reject(e) : resolve()));
         }).then(
@@ -81,5 +196,13 @@ export async function createBroker({ mqttPort, logger }) {
         );
     }
 
-    return { broker, start, stop };
+    return {
+        broker,
+        start,
+        stop,
+        topics: {
+            COMMAND_JOURNAL_ACK: TOPICS.COMMAND_JOURNAL_ACK,
+            commandNodeWrite: (uuid) => `commands/node/write/${uuid}`,
+        },
+    };
 }
