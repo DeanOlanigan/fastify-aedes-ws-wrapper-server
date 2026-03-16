@@ -705,6 +705,7 @@
                 "user.login_failed",
                 "user.session_expired",
                 "event.acknowledged",
+                "event.acknowledged.range",
                 "config.updated",
                 "hmi.opened",
                 "hmi.uploaded",

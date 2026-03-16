@@ -90,6 +90,69 @@ export function createCommandServices({ logger, broker }) {
                     );
                 });
             },
+
+            async ackEventRange({ commandId, requestedBy, requestedAt, payload }) {
+                /*
+
+                    Тут будет:
+                    1) проверка event в journal store/db
+                        - существует ли eventId
+                        - совпадает ли payload.event с найденым
+                        - был ли уже сделан ack
+                        - нужно ли публиковать event.acknowledged или event.ack_ignored|event.ack_error
+                        - обновления в journal store/db
+                    2) audit log
+
+                */
+
+                logger?.info(
+                    {
+                        commandId,
+                        fromTs: payload.fromTs,
+                        toTs: payload.toTs,
+                        requestedBy,
+                        requestedAt,
+                    },
+                    "journal ack stub executed",
+                );
+
+                const journalEvent = {
+                    schemaVersion: 1,
+                    id: uuidv7(),
+                    ts: Date.now(),
+                    severity: "info",
+                    category: "event",
+                    event: "event.acknowledged.range",
+                    actor: requestedBy
+                        ? {
+                              type: "user",
+                              id: requestedBy.userId,
+                              login: requestedBy.login,
+                              name: requestedBy.name,
+                          }
+                        : {
+                              type: "user",
+                          },
+                    ack: null,
+                    payload: {
+                        fromTs: payload.fromTs,
+                        toTs: payload.toTs,
+                    },
+                    message: `События от ${payload.fromTs} до ${payload.toTs} квитированы`,
+                };
+
+                await new Promise((resolve, reject) => {
+                    broker.publish(
+                        {
+                            topic: "journal",
+                            payload: JSON.stringify(journalEvent),
+                            qos: 0,
+                            retain: false,
+                        },
+                        (err) => (err ? reject(err) : resolve()),
+                    );
+                });
+            },
         },
     };
 }

@@ -4,7 +4,8 @@ import { createCommandServices } from "../services/createCommandServices.js";
 
 const TOPICS = {
     COMMAND_NODE_WRITE: /^commands\/node\/write\/(.+)$/,
-    COMMAND_JOURNAL_ACK: "commands/journal/ack",
+    COMMAND_JOURNAL_ACK: "commands/journal/ack/event",
+    COMMAND_JOURNAL_ACK_RANGE: "commands/journal/ack/range",
 };
 
 function safeJsonParse(payload) {
@@ -89,7 +90,7 @@ function createCommandDispatcher({ logger, services }) {
 
             if (
                 !data.commandId ||
-                data.type !== "journal.ack" ||
+                data.type !== "journal.ack.event" ||
                 !data.payload?.eventId
             ) {
                 logger?.warn(
@@ -120,6 +121,57 @@ function createCommandDispatcher({ logger, services }) {
                     eventId: data.payload.eventId,
                     event: data.payload.event,
                     message: data.payload.message,
+                },
+                requestedByClientId: client?.id ?? "server",
+                raw: data,
+            });
+            return;
+        }
+
+        if (packet.topic === TOPICS.COMMAND_JOURNAL_ACK_RANGE) {
+            const data = safeJsonParse(packet.payload);
+
+            if (!data || typeof data !== "object") {
+                logger?.warn(
+                    { topic: packet.topic, by: client?.id ?? "server" },
+                    "invalid JSON payload for journal ack command",
+                );
+                return;
+            }
+
+            if (
+                !data.commandId ||
+                data.type !== "journal.ack.range" ||
+                !data.payload?.fromTs ||
+                !data.payload?.toTs
+            ) {
+                logger?.warn(
+                    {
+                        topic: packet.topic,
+                        by: client?.id ?? "server",
+                        commandId: data.commandId,
+                    },
+                    "invalid journal ack command",
+                );
+            }
+
+            logger?.info(
+                {
+                    topic: packet.topic,
+                    by: client?.id ?? "server",
+                    commandId: data.commandId,
+                    eventId: data.payload.eventId,
+                },
+                "received journal ack command",
+            );
+
+            await services.journalCommands.ackEventRange({
+                commandId: data.commandId,
+                requestedAt: data.requestedAt ?? null,
+                requestedBy: data.requestedBy ?? null,
+                payload: {
+                    fromTs: data.payload.fromTs,
+                    toTs: data.payload.toTs,
                 },
                 requestedByClientId: client?.id ?? "server",
                 raw: data,
@@ -202,6 +254,7 @@ export async function createBroker({ mqttPort, logger }) {
         stop,
         topics: {
             COMMAND_JOURNAL_ACK: TOPICS.COMMAND_JOURNAL_ACK,
+            COMMAND_JOURNAL_ACK_RANGE: TOPICS.COMMAND_JOURNAL_ACK_RANGE,
             commandNodeWrite: (uuid) => `commands/node/write/${uuid}`,
         },
     };

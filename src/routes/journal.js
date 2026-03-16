@@ -9,7 +9,7 @@ function normalizeOptionalString(value) {
 
 export default async function journalRoutes(fastify) {
     fastify.post(
-        "/api/v2/journal/ack",
+        "/api/v2/journal/ack/event",
         {
             preHandler: [requireAuth, requireRight("journal.ack")],
         },
@@ -28,7 +28,7 @@ export default async function journalRoutes(fastify) {
 
             const command = {
                 commandId: uuidv7(),
-                type: "journal.ack",
+                type: "journal.ack.event",
                 requestedAt: Date.now(),
                 requestedBy: user
                     ? {
@@ -46,6 +46,51 @@ export default async function journalRoutes(fastify) {
 
             // Возможно стоит обрабатывать результат промиса и отправлять ответ в случае ошибки
             await fastify.commandBus.publishJournalAck(command);
+
+            return reply.send({
+                ok: true,
+                commandId: command.commandId,
+            });
+        },
+    );
+
+    fastify.post(
+        "/api/v2/journal/ack/range",
+        {
+            preHandler: [requireAuth, requireRight("journal.ack")],
+        },
+        async (req, reply) => {
+            const { fromTs, toTs } = req.body ?? {};
+
+            if (!fromTs || typeof fromTs !== "number") {
+                return reply.code(400).send({ error: "fromTs is required" });
+            }
+
+            if (!toTs || typeof toTs !== "number") {
+                return reply.code(400).send({ error: "toTs is required" });
+            }
+
+            const user = req.session.user;
+
+            const command = {
+                commandId: uuidv7(),
+                type: "journal.ack.range",
+                requestedAt: Date.now(),
+                requestedBy: user
+                    ? {
+                          userId: user.userId,
+                          login: user.login,
+                          name: user.name,
+                      }
+                    : null,
+                payload: {
+                    fromTs,
+                    toTs,
+                },
+            };
+
+            // Возможно стоит обрабатывать результат промиса и отправлять ответ в случае ошибки
+            await fastify.commandBus.publishJournalAckRange(command);
 
             return reply.send({
                 ok: true,

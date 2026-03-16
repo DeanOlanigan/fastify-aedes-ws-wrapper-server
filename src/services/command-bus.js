@@ -13,6 +13,19 @@ export function createCommandBus({ broker, topics }) {
                 );
             });
         },
+        async publishJournalAckRange(command) {
+            return new Promise((resolve, reject) => {
+                broker.publish(
+                    {
+                        topic: topics.COMMAND_JOURNAL_ACK_RANGE,
+                        payload: JSON.stringify(command),
+                        qos: 1,
+                        retain: false,
+                    },
+                    (err) => (err ? reject(err) : resolve()),
+                );
+            });
+        },
         async publishTelecontrol(varId, payload) {
             return new Promise((resolve, reject) => {
                 broker.publish(
