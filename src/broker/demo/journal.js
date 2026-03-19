@@ -1,4 +1,5 @@
 import { v7 as uuidv7 } from "uuid";
+import { clamp } from "../../routes/utils.js";
 
 const USERS = [
     { login: "operator", name: "Иванов И.И.", role: "operator" },
@@ -122,10 +123,6 @@ function pickWeighted(items) {
 function randomBetween(min, max, digits = 1) {
     const n = min + Math.random() * (max - min);
     return Number(n.toFixed(digits));
-}
-
-function clamp(value, min, max) {
-    return Math.min(max, Math.max(min, value));
 }
 
 function chooseUser(preferLogged = false) {

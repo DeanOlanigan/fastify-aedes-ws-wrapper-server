@@ -18,7 +18,7 @@ import configRoutes from "./routes/config.js";
 import dbRoutes from "./routes/db.js";
 import healthRoutes from "./routes/health.js";
 import hmiRoutes from "./routes/hmi.js";
-import journalRoutes from "./routes/journal.js";
+import journalRoutes from "./routes/journal/journal.js";
 import licenseRoutes from "./routes/license.js";
 import logRoutes from "./routes/log.js";
 import { authRoutes } from "./routes/login.js";

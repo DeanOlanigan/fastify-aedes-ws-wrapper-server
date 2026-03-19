@@ -262,3 +262,20 @@ export async function applyConfig(db, cfg, appliedAt) {
         throw error;
     }
 }
+
+export function createHttpError(statusCode, message) {
+    const error = new Error(message);
+    error.statusCode = statusCode;
+    return error;
+}
+
+export function isValidIsoDate(value) {
+    if (typeof value !== "string" || value.trim() === "") return false;
+
+    const time = Date.parse(value);
+    return Number.isFinite(time);
+}
+
+export function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+}

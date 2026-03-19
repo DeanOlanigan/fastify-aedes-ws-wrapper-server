@@ -837,7 +837,7 @@ function stripUndefined(obj) {
     return obj;
 }
 
-export function generateJournalMessage() {
+export function generateJournalMessage(ts = Date.now()) {
     const event = weightedPick([
         { value: "variable.value_changed", weight: 24 },
         { value: "variable.state_changed", weight: 10 },
@@ -966,8 +966,8 @@ export function generateJournalMessage() {
 
     return stripUndefined({
         schemaVersion: 1,
-        id: uuidv7(),
-        ts: Date.now(),
+        id: uuidv7({msecs: ts}),
+        ts,
         category: base.category,
         event: base.event,
         severity: base.severity,
