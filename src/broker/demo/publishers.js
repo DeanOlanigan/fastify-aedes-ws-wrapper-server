@@ -6,6 +6,7 @@ import { log } from "./log.js";
 import { metrics } from "./metrics.js";
 import { tick } from "./monitoring.js";
 import { parseXml } from "./parseXml.js";
+import { initLiveSignals, publishDueLiveSignals } from "./live-signals.js";
 
 const DATA_DIR = path.resolve("data");
 const CONFIG_PATH = path.join(DATA_DIR, "configuration.xml");
@@ -18,6 +19,7 @@ export function startDemoPublishers(broker) {
     const xmlString = fs.readFileSync(CONFIG_PATH).toString();
     const uuids = parseXml(xmlString);
     const uniq = Array.from(new Set(uuids)).filter(Boolean);
+    initLiveSignals(uniq);
 
     // metrics
     timers.push(
@@ -53,6 +55,15 @@ export function startDemoPublishers(broker) {
             tick(uniq, broker);
         }, 500)
     ); */
+
+    timers.push(
+        setInterval(() => {
+            publishDueLiveSignals(uniq, broker, {
+                retain: false,
+                version: 1,
+            });
+        }, 100),
+    );
 }
 
 export function stopDemoPublishers() {
