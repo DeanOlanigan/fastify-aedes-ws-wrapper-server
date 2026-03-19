@@ -122,9 +122,15 @@ export function parseConfigXml(xmlString) {
                 if (id && (v.Settings.archive || v.Settings.graph)) {
                     variables.push({
                         id,
-                        name: String(v.name).trim(),
-                        unit: String(v.Settings.measurement).trim(),
                         type: String(v.Settings.type).trim(),
+                        name: String(v.name).trim(),
+                        isSpecial: String(v.Settings.isSpecial).trim() === "true",
+                        specialCycleDelay: Number(v.Settings.specialCycleDelay),
+                        graph: String(v.Settings.graph).trim() === "true",
+                        measurement: String(v.Settings.measurement).trim(),
+                        aperture: Number(v.Settings.aperture),
+                        cmd: String(v.Settings.cmd).trim() === "true",
+                        archive: String(v.Settings.archive).trim() === "true",
                         group: String(v.Settings.group).trim(),
                     });
                 }

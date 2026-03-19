@@ -16,6 +16,7 @@ import appRoutes from "./routes/app.js";
 import archiveRoutes from "./routes/archive.js";
 import configRoutes from "./routes/config.js";
 import dbRoutes from "./routes/db.js";
+import graphRoutes from "./routes/graph/graph.js";
 import healthRoutes from "./routes/health.js";
 import hmiRoutes from "./routes/hmi.js";
 import journalRoutes from "./routes/journal/journal.js";
@@ -61,6 +62,7 @@ await fastify.register(usersRoutes);
 await fastify.register(rolesRoutes);
 await fastify.register(authRoutes, { prefix: "/api/v2/auth" });
 await fastify.register(journalRoutes);
+await fastify.register(graphRoutes);
 
 await fastify.listen({ port: HTTP_PORT });
 fastify.log.info(`HTTP listening :${HTTP_PORT}`);

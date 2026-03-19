@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { send } from "./utils.js";
+import { parseConfigXml, send } from "./utils.js";
 
 const DATA_DIR = path.resolve("data");
 const CONFIG_PATH = path.join(DATA_DIR, "configuration.xml");
@@ -58,6 +58,33 @@ export default async function configRoutes(fastify) {
                 return send(reply, 404, "Configuration not found");
             }
             return send(reply, 500, "Конфигурация не получена", error);
+        }
+    });
+
+    fastify.get("/api/v2/configuration/variables", async (_, reply) => {
+        try {
+            const data = await fs.readFile(CONFIG_PATH, "utf8");
+            const { variables } = parseConfigXml(data);
+            return send(reply, 200, "Переменные успешно получены", variables);
+        } catch (error) {
+            if (error.code === "ENOENT") {
+                return send(reply, 404, "Variables not found");
+            }
+            return send(reply, 500, "Переменные не получены", error);
+        }
+    });
+
+    fastify.get("/api/v2/configuration/variables/graph", async (_, reply) => {
+        try {
+            const data = await fs.readFile(CONFIG_PATH, "utf8");
+            const { variables } = parseConfigXml(data);
+            const graphVariables = variables.filter((v) => v.graph);
+            return send(reply, 200, "Переменные успешно получены", graphVariables);
+        } catch (error) {
+            if (error.code === "ENOENT") {
+                return send(reply, 404, "Variables not found");
+            }
+            return send(reply, 500, "Переменные не получены", error);
         }
     });
 }
