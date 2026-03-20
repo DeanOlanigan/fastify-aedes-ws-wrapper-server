@@ -16,15 +16,11 @@ export const CAPABILITIES = new Set([
 export const PERMISSIONS = new Map([
     ["config.view", { requiredCapabilities: [] }],
     ["config.upload", { requiredCapabilities: [] }],
-    ["config.create", { requiredCapabilities: [] }],
     ["config.open", { requiredCapabilities: [] }],
-    ["config.edit", { requiredCapabilities: [] }],
-    // подумать
     ["config.editor", { requiredCapabilities: [] }],
 
     ["server.start", { requiredCapabilities: [] }],
     ["server.stop", { requiredCapabilities: [] }],
-    ["server.restart", { requiredCapabilities: [] }],
 
     ["monitoring.view", { requiredCapabilities: [] }],
     ["monitoring.variables.manual_input", { requiredCapabilities: [] }],

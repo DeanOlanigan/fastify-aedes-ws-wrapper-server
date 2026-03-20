@@ -18,6 +18,7 @@
       "logs.download",
       "journal.view",
       "journal.download",
+      "journal.ack",
       "graphs.view",
       "hmi.view",
       "hmi.editor",

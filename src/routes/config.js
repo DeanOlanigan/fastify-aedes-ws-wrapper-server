@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { parseConfigXml, send } from "./utils.js";
+import { requireAuth, requireRight } from "../services/auth-guards.js";
 
 const DATA_DIR = path.resolve("data");
 const CONFIG_PATH = path.join(DATA_DIR, "configuration.xml");
@@ -12,7 +13,9 @@ export default async function configRoutes(fastify) {
     await fs.mkdir(DATA_DIR, { recursive: true });
 
     // PUT /api/v2/uploadConfiguration (XML в теле запроса)
-    fastify.put("/api/v2/configuration", async (req, reply) => {
+    fastify.put("/api/v2/configuration", {
+        preHandler: [requireAuth, requireRight("config.upload")],
+    }, async (req, reply) => {
         // Если пришла строка — используем её; на всякий случай поддержим и JSON { xml: "..." }
         const xml =
             typeof req.body === "string"
