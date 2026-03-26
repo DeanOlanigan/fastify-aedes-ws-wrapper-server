@@ -30,7 +30,7 @@ export async function createHttpServer({ logLevel }) {
             httpOnly: true,
             secure: false,
             sameSite: "lax",
-            maxAge: 60 * 60 * 8 * 1000,
+            maxAge: 1000 * 60 * 30,
         },
         rolling: true,
         saveUninitialized: false,

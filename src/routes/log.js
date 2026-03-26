@@ -10,7 +10,7 @@ import {
 
 export default async function logRoutes(fastify) {
     // GET /api/v2/log
-    fastify.get("/api/v2/log", async (req, reply) => {
+    fastify.get("/api/v2/logs/log", async (req, reply) => {
         const { name, dir, format = "raw", limit } = req.query;
 
         let fullPath;
@@ -54,7 +54,7 @@ export default async function logRoutes(fastify) {
     });
 
     // GET /api/v2/logList
-    fastify.get("/api/v2/loglist", async (_, reply) => {
+    fastify.get("/api/v2/logs", async (_, reply) => {
         try {
             const [sd, internal] = await Promise.all([
                 listOfFilesWithSize("sd"),

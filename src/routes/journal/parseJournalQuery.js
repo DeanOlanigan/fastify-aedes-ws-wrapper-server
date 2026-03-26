@@ -38,19 +38,19 @@ function decodeCursor(cursor) {
 
 export function parseJournalQuery(rawQuery) {
     const {
-        from,
-        to,
+        fromUTC,
+        toUTC,
         limit: rawLimit,
         before,
         severity,
         category,
     } = rawQuery;
 
-    if (from && !isValidIsoDate(from)) {
+    if (fromUTC && !isValidIsoDate(fromUTC)) {
         throw createHttpError(400, "from is not valid ISO date");
     }
 
-    if (to && !isValidIsoDate(to)) {
+    if (toUTC && !isValidIsoDate(toUTC)) {
         throw createHttpError(400, "to is not valid ISO date");
     }
 
@@ -61,8 +61,8 @@ export function parseJournalQuery(rawQuery) {
     }
 
     const nowMs = Date.now();
-    const fromMs = from ? Date.parse(from) : nowMs - DEFAULT_RANGE_MS;
-    const toMs = to ? Date.parse(to) : nowMs;
+    const fromMs = fromUTC ? Date.parse(fromUTC) : nowMs - DEFAULT_RANGE_MS;
+    const toMs = toUTC ? Date.parse(toUTC) : nowMs;
 
     if (fromMs > toMs) {
         throw createHttpError(400, "from > to");

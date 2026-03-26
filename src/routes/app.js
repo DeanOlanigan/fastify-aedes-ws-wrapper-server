@@ -8,13 +8,13 @@ import { send } from "./utils.js";
 let tirStatus = false;
 
 export default async function appRoutes(fastify) {
-    // GET /api/v1/getSoftwareVer
-    fastify.get("/api/v1/softwareVer", async (_, reply) => {
+    // GET /api/v2/system/version
+    fastify.get("/api/v2/system/version", async (_, reply) => {
         return send(reply, 200, "Success", "1.99.999");
     });
-    // POST /api/v2/startTir
+    // POST /api/v2/system/start
     fastify.post(
-        "/api/v2/startTir",
+        "/api/v2/system/start",
         {
             preHandler: [requireAuth, requireRight("server.start")],
         },
@@ -27,9 +27,9 @@ export default async function appRoutes(fastify) {
             return send(reply, 200, "ТИР успешно запущен");
         },
     );
-    // POST /api/v2/stopTir
+    // POST /api/v2/system/stop
     fastify.post(
-        "/api/v2/stopTir",
+        "/api/v2/system/stop",
         {
             preHandler: [requireAuth, requireRight("server.stop")],
         },
@@ -42,9 +42,9 @@ export default async function appRoutes(fastify) {
             return send(reply, 200, "ТИР успешно остановлен");
         },
     );
-    // POST /api/v2/restartTir
+    // POST /api/v2/system/restart
     fastify.post(
-        "/api/v2/restartTir",
+        "/api/v2/system/restart",
         {
             preHandler: [requireAuth, requireRight("server.restart")],
         },

@@ -5,202 +5,12 @@ import { pipeline } from "node:stream/promises";
 import AdmZip from "adm-zip";
 import { send } from "./utils.js";
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+//const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const HMI_DIR = path.resolve("data/hmi");
 
 export default async function hmiRoutes(fastify) {
     fastify.get("/api/v2/hmi/projects", async (_, reply) => {
-        const entries = await fss.readdir(HMI_DIR, {
-            withFileTypes: true,
-        });
-        const metaFiles = entries.filter((e) => e.name.endsWith(".meta.json"));
-
-        const stats = await Promise.all(
-            metaFiles.map(async (file) => {
-                const baseName = file.name.replace(".meta.json", "");
-                const st = await fss.stat(
-                    path.join(HMI_DIR, `${baseName}.tir-project`),
-                );
-
-                return {
-                    label: baseName,
-                    value: baseName,
-                    size: st.size,
-                    mtime: st.mtime,
-                    thumbnail: `/api/v2/hmi/project/${baseName}/thumbnail`,
-                };
-            }),
-        );
-        stats.sort((a, b) => b.mtime - a.mtime);
-
-        await delay(1500);
-
-        return send(reply, 200, "HMI projects successfully retrieved", stats);
-    });
-
-    fastify.get("/api/v2/hmi/project/:name/thumbnail", async (req, reply) => {
-        const { name } = req.params;
-        const thumbPath = path.resolve(HMI_DIR, `${name}.thumb.png`);
-
-        try {
-            await fss.access(thumbPath);
-            const stream = fs.createReadStream(thumbPath);
-            reply.type("image/png");
-            return reply.send(stream);
-        } catch {
-            // Если миниатюры нет, отдаем заглушку или 404
-            return reply.code(404).send("No thumbnail");
-        }
-    });
-
-    fastify.get("/api/v2/hmi/project/:name", async (req, reply) => {
-        const { name } = req.params;
-
-        if (!/^[a-zA-Z0-9._-]+$/.test(name)) {
-            return send(reply, 400, "Invalid project name");
-        }
-
-        const fileName = name.endsWith(".tir-project")
-            ? name
-            : `${name}.tir-project`;
-        const fullPath = path.join(HMI_DIR, fileName);
-
-        await delay(1500);
-
-        try {
-            await fs.promises.access(fullPath, fs.constants.F_OK);
-
-            reply.header("Content-Type", "application/octet-stream");
-            reply.header(
-                "Content-Disposition",
-                `attachment; filename="${fileName}"`,
-            );
-
-            const stream = fs.createReadStream(fullPath);
-            return reply.send(stream);
-        } catch (error) {
-            if (error.code === "ENOENT") {
-                return send(reply, 404, "Project not found");
-            }
-            return send(reply, 500, "Error reading project", error);
-        }
-    });
-
-    fastify.delete("/api/v2/hmi/project/:name", async (req, reply) => {
-        const { name } = req.params;
-
-        // Базовое имя без расширения
-        const baseName = name.replace(".tir-project", "");
-
-        // Список всех файлов, связанных с проектом
-        const filesToDelete = [
-            path.join(HMI_DIR, `${baseName}.tir-project`),
-            path.join(HMI_DIR, `${baseName}.meta.json`),
-            path.join(HMI_DIR, `${baseName}.thumb.png`),
-        ];
-
-        try {
-            // Проверяем существование хотя бы основного файла (архива)
-            await fss.access(filesToDelete[0]);
-
-            // Удаляем все файлы параллельно
-            await Promise.allSettled(
-                filesToDelete.map((filePath) => fss.unlink(filePath)),
-            );
-
-            return reply
-                .code(200)
-                .send({ message: "HMI project and related assets deleted" });
-        } catch (error) {
-            if (error.code === "ENOENT") {
-                return reply.code(404).send({ message: "Project not found" });
-            }
-            return reply.code(500).send({
-                message: "Error deleting project",
-                error: error.message,
-            });
-        }
-    });
-
-    fastify.put("/api/v2/hmi/project/:name", async (req, reply) => {
-        const { name } = req.params;
-
-        const fileName = name.endsWith(".tir-project")
-            ? name
-            : `${name}.tir-project`;
-        const fullPath = path.join(HMI_DIR, fileName);
-
-        const data = await req.file();
-        if (!data) {
-            return send(reply, 400, "No file uploaded");
-        }
-
-        await delay(1500);
-
-        try {
-            await fss.mkdir(HMI_DIR, { recursive: true });
-
-            await pipeline(data.file, fs.createWriteStream(fullPath));
-
-            const zip = new AdmZip(fullPath);
-            const zipEntries = zip.getEntries();
-
-            // 1. Ищем миниатюру в архиве
-            const thumbEntry = zipEntries.find(
-                (e) => e.entryName === "thumbnail.png",
-            );
-            if (thumbEntry) {
-                await fss.writeFile(
-                    path.join(HMI_DIR, `${name}.thumb.png`),
-                    thumbEntry.getData(),
-                );
-            }
-
-            // 2. Ищем манифест для метаданных
-            const manifestEntry = zipEntries.find(
-                (e) => e.entryName === "manifest.json",
-            );
-            if (manifestEntry) {
-                await fss.writeFile(
-                    path.join(HMI_DIR, `${name}.meta.json`),
-                    manifestEntry.getData(),
-                );
-            }
-
-            return send(reply, 200, "HMI project successfully updated");
-        } catch (error) {
-            return send(reply, 500, "Error saving project", error);
-        }
-    });
-
-    fastify.patch("/api/v2/hmi/project/:oldName/rename", async (req, reply) => {
-        const { oldName } = req.params;
-        const { newName } = req.body;
-
-        const extensions = [".tir-project", ".meta.json", ".thumb.png"];
-
-        try {
-            await Promise.all(
-                extensions.map(async (ext) => {
-                    const oldPath = path.join(HMI_DIR, `${oldName}${ext}`);
-                    const newPath = path.join(HMI_DIR, `${newName}${ext}`);
-                    // Используем try/catch внутри, так как превью может не быть
-                    try {
-                        await fss.access(oldPath);
-                        await fss.rename(oldPath, newPath);
-                    } catch {}
-                }),
-            );
-            return reply.send({ message: "Renamed" });
-        } catch {
-            return reply.code(500).send({ message: "Rename failed" });
-        }
-    });
-
-    // NEW API
-
-    fastify.get("/api/v2/hmi/projects2", async (_, reply) => {
         const entries = await fss.readdir(HMI_DIR, {
             withFileTypes: true,
         });
@@ -224,7 +34,7 @@ export default async function hmiRoutes(fastify) {
                     name: meta.projectName ?? "Untitled",
                     size: projectStat?.size ?? 0,
                     mtime: projectStat?.mtime ?? 0,
-                    thumbnail: `/api/v2/hmi/project2/${projectId}/thumbnail`,
+                    thumbnail: `/api/v2/hmi/projects/${projectId}/thumbnail`,
                 }
             }),
         )
@@ -233,7 +43,7 @@ export default async function hmiRoutes(fastify) {
         return send(reply, 200, "HMI projects successfully retrieved", items);
     })
 
-    fastify.get("/api/v2/hmi/project2/:id/thumbnail", async (req, reply) => {
+    fastify.get("/api/v2/hmi/projects/:id/thumbnail", async (req, reply) => {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
@@ -256,7 +66,7 @@ export default async function hmiRoutes(fastify) {
         }
     });
 
-    fastify.get("/api/v2/hmi/project2/:id", async (req, reply) => {
+    fastify.get("/api/v2/hmi/projects/:id", async (req, reply) => {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
@@ -283,7 +93,7 @@ export default async function hmiRoutes(fastify) {
         }
     });
 
-    fastify.delete("/api/v2/hmi/project2/:id", async (req, reply) => {
+    fastify.delete("/api/v2/hmi/projects/:id", async (req, reply) => {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
@@ -305,7 +115,7 @@ export default async function hmiRoutes(fastify) {
         }
     });
 
-    fastify.put("/api/v2/hmi/project2/:id", async (req, reply) => {
+    fastify.put("/api/v2/hmi/projects/:id", async (req, reply) => {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {

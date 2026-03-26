@@ -78,7 +78,7 @@ export const authRoutes = async (fastify) => {
         });
     });
 
-    fastify.post("/reauth", async (request, reply) => {
+    fastify.post("/confirm", async (request, reply) => {
         const sessionUser = request.session.user;
         if (!sessionUser) {
             return reply.code(401).send({ error: "UNAUTHORIZED" });
