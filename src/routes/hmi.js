@@ -40,14 +40,14 @@ export default async function hmiRoutes(fastify) {
         )
 
         items.sort((a, b) => b.mtime - a.mtime);
-        return send(reply, 200, "HMI projects successfully retrieved", items);
+        return reply.code(200).send(items);
     })
 
     fastify.get("/api/v2/hmi/projects/:id/thumbnail", async (req, reply) => {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
-            return send(reply, 400, "Invalid project id");
+            return reply.code(400).send({ error: { code: "INVALID_PROJECT_ID" } });
         }
 
         const { thumb } = getProjectPaths(id);

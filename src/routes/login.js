@@ -20,25 +20,25 @@ export const authRoutes = async (fastify) => {
             const { login, password } = request.body ?? {};
 
             if (!login || !password) {
-                return reply.code(400).send({ error: "LOGIN_REQUIRED" });
+                return reply.code(400).send({ error: { code: "LOGIN_REQUIRED" } });
             }
 
             const { users, roles } = fastify.authStore;
             const found = findUserByLogin(users, login);
 
             if (!found) {
-                return reply.code(401).send({ error: "INVALID_CREDENTIALS" });
+                return reply.code(401).send({ error: { code: "INVALID_CREDENTIALS" } });
             }
 
             const [userId, user] = found;
 
             if (user.isDisabled) {
-                return reply.code(403).send({ error: "USER_DISABLED" });
+                return reply.code(403).send({ error: { code: "USER_DISABLED" } });
             }
 
             const ok = await verifyPassword(user.passwordHash, password);
             if (!ok) {
-                return reply.code(401).send({ error: "INVALID_CREDENTIALS" });
+                return reply.code(401).send({ error: { code: "INVALID_CREDENTIALS" } });
             }
 
             // важно: заново пересоздать сессию после логина
@@ -81,23 +81,23 @@ export const authRoutes = async (fastify) => {
     fastify.post("/confirm", async (request, reply) => {
         const sessionUser = request.session.user;
         if (!sessionUser) {
-            return reply.code(401).send({ error: "UNAUTHORIZED" });
+            return reply.code(401).send({ error: { code: "UNAUTHORIZED" } });
         }
 
         const { password } = request.body ?? {};
         if (!password) {
-            return reply.code(400).send({ error: "PASSWORD_REQUIRED" });
+            return reply.code(400).send({ error: { code: "PASSWORD_REQUIRED" } });
         }
 
         const user = fastify.authStore.users[sessionUser.userId];
         if (!user || user.isDisabled) {
             await request.session.destroy();
-            return reply.code(401).send({ error: "UNAUTHORIZED" });
+            return reply.code(401).send({ error: { code: "UNAUTHORIZED" } });
         }
 
         const ok = await verifyPassword(user.passwordHash, password);
         if (!ok) {
-            return reply.code(401).send({ error: "INVALID_CREDENTIALS" });
+            return reply.code(401).send({ error: { code: "INVALID_CREDENTIALS" } });
         }
 
         request.session.user.stepUpUntil = Date.now() + 5 * 60 * 1000; // 5 минут

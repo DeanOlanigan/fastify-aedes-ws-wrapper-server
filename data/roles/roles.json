@@ -6,7 +6,7 @@
       "config.upload",
       "config.create",
       "config.open",
-      "config.edit",
+      "config.editor",
       "server.start",
       "server.stop",
       "server.restart",
@@ -55,7 +55,7 @@
       "config.upload",
       "config.create",
       "config.open",
-      "config.edit"
+      "config.editor"
     ]
   }
 }

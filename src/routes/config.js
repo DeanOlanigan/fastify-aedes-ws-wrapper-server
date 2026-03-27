@@ -1,93 +1,132 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { parseConfigXml, send } from "./utils.js";
 import { requireAuth, requireRight } from "../services/auth-guards.js";
 
 const DATA_DIR = path.resolve("data");
-const CONFIG_PATH = path.join(DATA_DIR, "configuration.xml");
+const CONFIG_PATH = path.join(DATA_DIR, "configuration.json");
 
-const MAX_XML_SIZE = 1024 * 1024 * 2; // 2MB
+const MAX_CONFIG_SIZE = 1024 * 1024 * 2; // 2MB
 
 export default async function configRoutes(fastify) {
 
     await fs.mkdir(DATA_DIR, { recursive: true });
 
-    // PUT /api/v2/uploadConfiguration (XML в теле запроса)
-    fastify.put("/api/v2/configuration", {
-        preHandler: [requireAuth, requireRight("config.upload")],
-    }, async (req, reply) => {
-        // Если пришла строка — используем её; на всякий случай поддержим и JSON { xml: "..." }
-        const xml =
-            typeof req.body === "string"
-                ? req.body
-                : typeof req.body?.xml === "string"
-                ? req.body.xml
-                : "";
+    // PUT /api/v2/configuration
+    fastify.put(
+        "/api/v2/configuration",
+        {
+            preHandler: [requireAuth, requireRight("config.upload")],
+        }, 
+        async (req, reply) => {
+            const { config } = req.body;
 
-        if (!xml || xml.trim() === "") {
-            return send(reply, 400, "Bad request");
+            if (!config || typeof config !== "object" || Array.isArray(config)) {
+                return reply.code(400).send({ error: { code: "BAD_REQUEST"} });
+            }
+
+            let json;
+            try {
+                json = JSON.stringify(config, null, 2);
+            } catch {
+                return reply.code(400).send({ error: { code: "INVALID_PAYLOAD"} });
+            }
+
+            if (Buffer.byteLength(json, "utf8") > MAX_CONFIG_SIZE) {
+                return reply.code(413).send({ error: { code: "PAYLOAD_TOO_LARGE"}});
+            }
+
+            try {
+                const tmp = `${CONFIG_PATH}.tmp`;
+                await fs.writeFile(tmp, json, "utf8");
+                await fs.rename(tmp, CONFIG_PATH);
+
+                return reply.code(200).send({ ok: true });
+            } catch (error) {
+                fastify.log.error(error);
+                return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
+            }
         }
+    );
 
-        // ограничение размера
-        if (Buffer.byteLength(xml, "utf8") > MAX_XML_SIZE) {
-            return send(reply, 413, "Configuration too large");
-        }
-
-        // простая sanity-проверка
-        if (!xml.trim().startsWith("<")) {
-            return send(reply, 400, "Invalid XML");
-        }
-
-        try {
-
-            // атомарная запись
-            const tmp = `${CONFIG_PATH}.tmp`;
-            await fs.writeFile(tmp, xml, "utf8");
-            await fs.rename(tmp, CONFIG_PATH);
-
-            return send(reply, 200, "Конфигурация успешно сохранена");
-        } catch (error) {
-            return send(reply, 500, "Конфигурация не сохранена", error);
-        }
-    });
-
-    // GET /api/v2/getConfiguration
+    // GET /api/v2/configuration
     fastify.get("/api/v2/configuration", async (_, reply) => {
         try {
             const data = await fs.readFile(CONFIG_PATH, "utf8");
-            return send(reply, 200, "Конфигурация успешно получена", data);
+            const config = JSON.parse(data);
+            return reply.code(200).send(config);
         } catch (error) {
             if (error.code === "ENOENT") {
-                return send(reply, 404, "Configuration not found");
+                return reply.code(404).send({ error: { code: "NOT_FOUND"} });
             }
-            return send(reply, 500, "Конфигурация не получена", error);
+            return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
         }
     });
 
+    // GET /api/v2/configuration/variables
     fastify.get("/api/v2/configuration/variables", async (_, reply) => {
         try {
             const data = await fs.readFile(CONFIG_PATH, "utf8");
-            const { variables } = parseConfigXml(data);
-            return send(reply, 200, "Переменные успешно получены", variables);
+            const config = JSON.parse(data);
+            const variables = getVariables(config);
+            return reply.code(200).send(variables);
         } catch (error) {
             if (error.code === "ENOENT") {
-                return send(reply, 404, "Variables not found");
+                return reply.code(404).send({ error: { code: "NOT_FOUND"} });
             }
-            return send(reply, 500, "Переменные не получены", error);
+            return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
         }
     });
 
+    // GET /api/v2/configuration/variables/graph
     fastify.get("/api/v2/configuration/variables/graph", async (_, reply) => {
         try {
             const data = await fs.readFile(CONFIG_PATH, "utf8");
-            const { variables } = parseConfigXml(data);
-            const graphVariables = variables.filter((v) => v.graph);
-            return send(reply, 200, "Переменные успешно получены", graphVariables);
+            const config = JSON.parse(data);
+            const graphVariables = getGraphVariables(config);
+            return reply.code(200).send(graphVariables);
         } catch (error) {
             if (error.code === "ENOENT") {
-                return send(reply, 404, "Variables not found");
+                return reply.code(404).send({ error: { code: "NOT_FOUND"} });
             }
-            return send(reply, 500, "Переменные не получены", error);
+            return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
         }
     });
+}
+
+function getGraphVariables(config) {
+    if (!config.settings) return [];
+    const variables = [];
+    for (const value of Object.values(config.settings)) {
+        if (value.type === "variable" && value.setting.graph) {
+            variables.push(buildVariable(value));
+        }
+    }
+    return variables;
+}
+
+function buildVariable(variable) {
+    return {
+        id: variable.id,
+        type: variable.type,
+        name: variable.name,
+        isSpecial: variable.setting.isSpecial,
+        specialCycleDelay: variable.setting.specialCycleDelay,
+        graph: variable.setting.graph,
+        measurement: variable.setting.measurement,
+        aperture: variable.setting.aperture,
+        cmd: variable.setting.cmd,
+        archive: variable.setting.archive,
+        group: variable.setting.group,
+    };
+}
+
+function getVariables(config) {
+    if (!config.settings) return [];
+    const variables = [];
+    for (const value of Object.values(config.settings)) {
+        if (value.type === "variable") {
+            variables.push(buildVariable(value));
+        }
+    }
+    return variables;
 }
