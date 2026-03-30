@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { ERROR_CODES } from "../errorCodes.js";
 import { requireAuth, requireRight } from "../services/auth-guards.js";
 
 const DATA_DIR = path.resolve("data");
@@ -8,7 +9,6 @@ const CONFIG_PATH = path.join(DATA_DIR, "configuration.json");
 const MAX_CONFIG_SIZE = 1024 * 1024 * 2; // 2MB
 
 export default async function configRoutes(fastify) {
-
     await fs.mkdir(DATA_DIR, { recursive: true });
 
     // PUT /api/v2/configuration
@@ -16,23 +16,31 @@ export default async function configRoutes(fastify) {
         "/api/v2/configuration",
         {
             preHandler: [requireAuth, requireRight("config.upload")],
-        }, 
+        },
         async (req, reply) => {
             const { config } = req.body;
 
-            if (!config || typeof config !== "object" || Array.isArray(config)) {
-                return reply.code(400).send({ error: { code: "BAD_REQUEST"} });
+            if (
+                !config ||
+                typeof config !== "object" ||
+                Array.isArray(config)
+            ) {
+                return reply.code(400).send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
             }
 
             let json;
             try {
                 json = JSON.stringify(config, null, 2);
             } catch {
-                return reply.code(400).send({ error: { code: "INVALID_PAYLOAD"} });
+                return reply
+                    .code(400)
+                    .send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
             }
 
             if (Buffer.byteLength(json, "utf8") > MAX_CONFIG_SIZE) {
-                return reply.code(413).send({ error: { code: "PAYLOAD_TOO_LARGE"}});
+                return reply
+                    .code(413)
+                    .send({ error: { code: ERROR_CODES.PAYLOAD_TOO_LARGE } });
             }
 
             try {
@@ -43,9 +51,11 @@ export default async function configRoutes(fastify) {
                 return reply.code(200).send({ ok: true });
             } catch (error) {
                 fastify.log.error(error);
-                return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
+                return reply
+                    .code(500)
+                    .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
             }
-        }
+        },
     );
 
     // GET /api/v2/configuration
@@ -56,9 +66,11 @@ export default async function configRoutes(fastify) {
             return reply.code(200).send(config);
         } catch (error) {
             if (error.code === "ENOENT") {
-                return reply.code(404).send({ error: { code: "NOT_FOUND"} });
+                return reply.code(404).send({ error: { code: ERROR_CODES.NOT_FOUND } });
             }
-            return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 
@@ -71,9 +83,11 @@ export default async function configRoutes(fastify) {
             return reply.code(200).send(variables);
         } catch (error) {
             if (error.code === "ENOENT") {
-                return reply.code(404).send({ error: { code: "NOT_FOUND"} });
+                return reply.code(404).send({ error: { code: ERROR_CODES.NOT_FOUND } });
             }
-            return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 
@@ -86,9 +100,11 @@ export default async function configRoutes(fastify) {
             return reply.code(200).send(graphVariables);
         } catch (error) {
             if (error.code === "ENOENT") {
-                return reply.code(404).send({ error: { code: "NOT_FOUND"} });
+                return reply.code(404).send({ error: { code: ERROR_CODES.NOT_FOUND } });
             }
-            return reply.code(500).send({ error: { code: "INTERNAL_SERVER_ERROR"} });
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 }

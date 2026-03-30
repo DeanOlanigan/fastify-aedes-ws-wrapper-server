@@ -3,7 +3,7 @@ import fss from "node:fs/promises";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import AdmZip from "adm-zip";
-import { send } from "./utils.js";
+import { ERROR_CODES } from "../errorCodes";
 
 //const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -11,43 +11,84 @@ const HMI_DIR = path.resolve("data/hmi");
 
 export default async function hmiRoutes(fastify) {
     fastify.get("/api/v2/hmi/projects", async (_, reply) => {
-        const entries = await fss.readdir(HMI_DIR, {
-            withFileTypes: true,
-        });
+        try {
+            const entries = await fss.readdir(HMI_DIR, {
+                withFileTypes: true,
+            });
 
-        const projectDirs = entries.filter((e) => e.isDirectory());
+            const projectDirs = entries.filter((e) => e.isDirectory());
 
-        const items = await Promise.all(
-            projectDirs.map(async (dir) => {
-                const projectId = dir.name;
-                const projectDir = path.join(HMI_DIR, projectId);
-                const metaPath = path.join(projectDir, "meta.json");
-                const projectPath = path.join(projectDir, "project.tir-project");
+            const settled = await Promise.allSettled(
+                projectDirs.map(async (dir) => {
+                    const projectId = dir.name;
+                    const projectDir = path.join(HMI_DIR, projectId);
+                    const metaPath = path.join(projectDir, "meta.json");
+                    const projectPath = path.join(
+                        projectDir,
+                        "project.tir-project",
+                    );
 
-                const metaText = await fss.readFile(metaPath, "utf-8");
-                const meta = JSON.parse(metaText);
+                    let meta = {};
+                    try {
+                        const metaText = await fss.readFile(metaPath, "utf-8");
+                        meta = JSON.parse(metaText);
+                    } catch (error) {
+                        fastify.log.warn(
+                            { error, projectId, metaPath },
+                            "Error reading meta.json",
+                        );
+                        return null;
+                    }
 
-                const projectStat = await fss.stat(projectPath).catch(() => null);
+                    const projectStat = await fss
+                        .stat(projectPath)
+                        .catch(() => null);
 
-                return {
-                    id: meta.id ?? projectId,
-                    name: meta.projectName ?? "Untitled",
-                    size: projectStat?.size ?? 0,
-                    mtime: projectStat?.mtime ?? 0,
-                    thumbnail: `/api/v2/hmi/projects/${projectId}/thumbnail`,
+                    return {
+                        id:
+                            typeof meta.id === "string" && meta.id
+                                ? meta.id
+                                : projectId,
+                        name:
+                            typeof meta.projectName === "string" &&
+                            meta.projectName
+                                ? meta.projectName
+                                : "Untitled",
+                        size: projectStat?.size ?? 0,
+                        mtime: projectStat?.mtimeMs ?? 0,
+                        thumbnail: `/api/v2/hmi/projects/${projectId}/thumbnail`,
+                    };
+                }),
+            );
+            const items = [];
+            for (const result of settled) {
+                if (result.status === "fulfilled" && result.value) {
+                    items.push(result.value);
+                } else if (result.status === "rejected") {
+                    fastify.log.warn(
+                        { error: result.reason },
+                        "Error reading project",
+                    );
                 }
-            }),
-        )
+            }
 
-        items.sort((a, b) => b.mtime - a.mtime);
-        return reply.code(200).send(items);
-    })
+            items.sort((a, b) => b.mtime - a.mtime);
+            return reply.send(items);
+        } catch (error) {
+            fastify.log.error(error);
+            return reply
+                .code(500)
+                .send({ error: { code: "INTERNAL_SERVER_ERROR" } });
+        }
+    });
 
     fastify.get("/api/v2/hmi/projects/:id/thumbnail", async (req, reply) => {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
-            return reply.code(400).send({ error: { code: "INVALID_PROJECT_ID" } });
+            return reply
+                .code(400)
+                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
         }
 
         const { thumb } = getProjectPaths(id);
@@ -57,12 +98,16 @@ export default async function hmiRoutes(fastify) {
             reply.header("Content-Type", "image/png");
             const stream = fs.createReadStream(thumb);
             return reply.send(stream);
-        } catch {
+        } catch (error) {
             // Если миниатюры нет, отдаем заглушку или 404
             if (error.code === "ENOENT") {
-                return send(reply, 404, "Thumbnail not found");
+                return reply
+                    .code(404)
+                    .send({ error: { code: ERROR_CODES.NOT_FOUND } });
             }
-            return send(reply, 500, "Error reading thumbnail", error);
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 
@@ -70,7 +115,9 @@ export default async function hmiRoutes(fastify) {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
-            return send(reply, 400, "Invalid project id");
+            return reply
+                .code(400)
+                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
         }
 
         const { archive } = getProjectPaths(id);
@@ -87,9 +134,13 @@ export default async function hmiRoutes(fastify) {
             return reply.send(fs.createReadStream(archive));
         } catch (error) {
             if (error.code === "ENOENT") {
-                return send(reply, 404, "Project not found");
+                return reply
+                    .code(404)
+                    .send({ error: { code: ERROR_CODES.NOT_FOUND } });
             }
-            return send(reply, 500, "Error reading project", error);
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 
@@ -97,7 +148,9 @@ export default async function hmiRoutes(fastify) {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
-            return send(reply, 400, "Invalid project id");
+            return reply
+                .code(400)
+                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
         }
 
         const { dir } = getProjectPaths(id);
@@ -106,12 +159,16 @@ export default async function hmiRoutes(fastify) {
             await fss.access(dir, fs.constants.F_OK);
             await fss.rm(dir, { recursive: true, force: false });
 
-            return send(reply, 200, "HMI project deleted");
+            return reply.code(200).send({ ok: true });
         } catch (error) {
             if (error.code === "ENOENT") {
-                return send(reply, 404, "Project not found");
+                return reply
+                    .code(404)
+                    .send({ error: { code: ERROR_CODES.NOT_FOUND } });
             }
-            return send(reply, 500, "Error deleting project", error);
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 
@@ -119,12 +176,20 @@ export default async function hmiRoutes(fastify) {
         const { id } = req.params;
 
         if (!isValidProjectId(id)) {
-            return send(reply, 400, "Invalid project id");
+            return reply
+                .code(400)
+                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
+        }
+
+        if (!req.isMultipart || !req.isMultipart()) {
+            return reply.code(400).send({ error: { code: "INVALID_PAYLOAD" } });
         }
 
         const data = await req.file();
         if (!data) {
-            return send(reply, 400, "No file uploaded");
+            return reply
+                .code(400)
+                .send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
         }
 
         const paths = getProjectPaths(id);
@@ -141,7 +206,9 @@ export default async function hmiRoutes(fastify) {
                 (e) => e.entryName === "manifest.json",
             );
             if (!manifestEntry) {
-                return send(reply, 400, "Invalid project package: manifest.json is missing");
+                return reply
+                    .code(400)
+                    .send({ error: { code: ERROR_CODES.INVALID_PACKAGE } });
             }
 
             const manifestBuffer = manifestEntry.getData();
@@ -150,11 +217,15 @@ export default async function hmiRoutes(fastify) {
             try {
                 manifest = JSON.parse(manifestBuffer.toString("utf-8"));
             } catch {
-                return send(reply, 400, "Invalid project package: manifest.json is malformed");
+                return reply
+                    .code(400)
+                    .send({ error: { code: ERROR_CODES.INVALID_PACKAGE } });
             }
 
             if (manifest.projectId && manifest.projectId !== id) {
-                return send(reply, 409, "Project id in manifest does not match request id");
+                return reply
+                    .code(409)
+                    .send({ error: { code: ERROR_CODES.PROJECT_ID_MISMATCH } });
             }
 
             await fss.writeFile(paths.meta, manifestBuffer);
@@ -169,9 +240,12 @@ export default async function hmiRoutes(fastify) {
                 await fss.rm(paths.thumb, { force: true }).catch(() => {});
             }
 
-            return send(reply, 200, "HMI project successfully saved");
+            return reply.code(200).send({ ok: true });
         } catch (error) {
-            return send(reply, 500, "Error saving project", error);
+            fastify.log.error(error);
+            return reply
+                .code(500)
+                .send({ error: { code: "INTERNAL_SERVER_ERROR" } });
         }
     });
 }
