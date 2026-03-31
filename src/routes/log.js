@@ -1,73 +1,125 @@
 import fs from "node:fs";
 import fss from "node:fs/promises";
+import path from "node:path";
 import readline from "node:readline";
-import {
-    levelToNumber,
-    listOfFilesWithSize,
-    safeJoinLogPath,
-    send,
-} from "./utils.js";
+import archiver from "archiver";
+import { ERROR_CODES } from "../errorCodes.js";
+import { levelToNumber, listOfFilesWithSize } from "./utils.js";
 
 export default async function logRoutes(fastify) {
-    // GET /api/v2/log
-    fastify.get("/api/v2/logs/log", async (req, reply) => {
-        const { name, dir, format = "raw", limit } = req.query;
+    // GET /api/v2/logs/:name?limit=100
+    fastify.get("/api/v2/logs/:name", async (req, reply) => {
+        const { name } = req.params;
+        const { limit } = req.query;
 
-        let fullPath;
-        try {
-            fullPath = safeJoinLogPath(dir, name);
-        } catch {
-            return send(reply, 403, "Forbidden");
-        }
+        const logPath = path.resolve("data/logs", name);
 
         const maxLimit = 5000;
         const take = Math.min(Number(limit) || 1000, maxLimit);
 
         try {
-            await fss.access(fullPath);
+            await fss.access(logPath);
         } catch {
-            return send(reply, 404, "Log not found");
+            return reply
+                .code(404)
+                .send({ error: { code: ERROR_CODES.NOT_FOUND } });
         }
 
-        if (format === "raw") {
-            try {
-                const lines = await tailLines(fullPath, take);
-                const text = lines.join("\n");
-                return send(reply, 200, "Лог успешно получен", text);
-            } catch (error) {
-                return send(reply, 500, "Лог не получен", error);
-            }
+        try {
+            const items = await tailLines(logPath, take, (line) =>
+                parseLogLine(line),
+            );
+            return reply.send({ items });
+        } catch (error) {
+            fastify.log.error(error);
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
-
-        if (format === "json") {
-            try {
-                const items = await tailLines(fullPath, take, (line) =>
-                    parseLogLine(line),
-                );
-                return send(reply, 200, "Лог успешно получен", items);
-            } catch (error) {
-                return send(reply, 500, "Лог не получен", error);
-            }
-        }
-
-        return send(reply, 400, "Bad request");
     });
 
-    // GET /api/v2/logList
+    // GET /api/v2/logs
     fastify.get("/api/v2/logs", async (_, reply) => {
         try {
-            const [sd, internal] = await Promise.all([
-                listOfFilesWithSize("sd"),
-                listOfFilesWithSize("internal"),
-            ]);
+            const [sd] = await Promise.all([listOfFilesWithSize()]);
 
-            return send(reply, 200, "Логи успешно получены", [
-                ...sd,
-                ...internal,
-            ]);
+            return reply.send({ items: sd });
         } catch (error) {
-            return send(reply, 500, "Логи не получены", error);
+            fastify.log.error(error);
+            return reply
+                .code(500)
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
+    });
+
+    // POST /api/v2/logs/export
+    fastify.post("/api/v2/logs/export", {
+        schema: {
+            body: {
+                type: "object",
+                properties: {
+                    items: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            required: ["name"],
+                            properties: {
+                                name: { type: "string" },
+                            },
+                        },
+                    },
+                },
+                required: ["items"],
+            },
+        },
+        handler: async (req, reply) => {
+            const { items } = req.body;
+
+            const filename = `archive_${new Date()
+                .toISOString()
+                .replace(/:/g, "_")}.zip`;
+
+            reply.raw.setTimeout(0);
+            reply
+                .header("Content-Type", "application/zip")
+                .header(
+                    "Content-Disposition",
+                    `attachment; filename="${filename}"`,
+                );
+
+            const archive = archiver("zip", {
+                zlib: { level: 6 },
+            });
+
+            archive.on("error", (err) => {
+                req.log.error({ err }, "Archive error");
+                if (!reply.raw.writableEnded) {
+                    reply.raw.destroy(err);
+                }
+            });
+
+            reply.send(archive);
+
+            for (const item of items) {
+                try {
+                    const fullPath = path.resolve("data/logs", item.name);
+                    const stat = await fss.stat(fullPath).catch(() => null);
+                    if (stat?.isFile()) {
+                        archive.file(fullPath, {
+                            name: item.name,
+                            date: stat.mtime,
+                        });
+                    }
+                } catch (error) {
+                    req.log.warn(
+                        { error, item: item.name },
+                        "Failed to archive file",
+                    );
+                }
+            }
+
+            await archive.finalize();
+        },
     });
 }
 

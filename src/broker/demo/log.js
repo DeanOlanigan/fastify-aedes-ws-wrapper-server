@@ -24,7 +24,7 @@ export async function log(broker) {
     };
 
     broker.publish({
-        topic: `log/internal/Modbus_BEMP.log`,
+        topic: `log/Modbus_BEMP.log`,
         payload: JSON.stringify(msg),
         qos: 0,
         retain: false,

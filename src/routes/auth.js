@@ -3,7 +3,7 @@ import { findUserByLogin, verifyPassword } from "../services/auth.js";
 import { buildSessionUser } from "../services/session-user.js";
 import { validateSessionUser } from "../services/validateSessionUser.js";
 
-export const authRoutes = async (fastify) => {
+export default async function authRoutes(fastify) {
     fastify.post(
         "/login",
         {
@@ -20,7 +20,7 @@ export const authRoutes = async (fastify) => {
             if (!login || !password) {
                 return reply
                     .code(400)
-                    .send({ error: { code: ERROR_CODES.VALIDATION_ERROR } });
+                    .send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
             }
 
             const { users, roles } = fastify.authStore;
@@ -54,7 +54,6 @@ export const authRoutes = async (fastify) => {
             request.session.user = sessionUser;
 
             return reply.send({
-                ok: true,
                 user: sessionUser,
             });
         },
@@ -63,7 +62,7 @@ export const authRoutes = async (fastify) => {
     fastify.post("/logout", async (request, reply) => {
         await request.session.destroy();
         reply.clearCookie("sid", { path: "/" });
-        return reply.send({ ok: true });
+        return reply.code(204).send();
     });
 
     fastify.get("/session", async (request, reply) => {
@@ -117,7 +116,6 @@ export const authRoutes = async (fastify) => {
 
         request.session.user.stepUpUntil = Date.now() + 5 * 60 * 1000; // 5 минут
         return reply.send({
-            ok: true,
             stepUpUntil: request.session.user.stepUpUntil,
         });
     });

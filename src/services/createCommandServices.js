@@ -4,12 +4,7 @@ import { overrideValue } from "../broker/demo/monitoring.js";
 function buildAckJournalMessage({ targetEvent, actor }) {
     const actorName = actor?.name || actor?.login || "Пользователь";
 
-    const eventName = targetEvent?.event || "unknown.event";
-    const targetMessage = targetEvent?.message
-        ? `: ${targetEvent.message}`
-        : "";
-
-    return `${actorName} квитировал событие ${eventName}${targetMessage}`;
+    return `${actorName} квитировал событие ${targetEvent.id}`;
 }
 
 export function createCommandServices({ logger, broker }) {
@@ -24,8 +19,6 @@ export function createCommandServices({ logger, broker }) {
             async ackEvent({ commandId, requestedBy, requestedAt, payload }) {
                 const targetEvent = {
                     id: payload.eventId,
-                    event: payload.event,
-                    message: payload.message ?? null,
                 };
 
                 /*
@@ -108,8 +101,8 @@ export function createCommandServices({ logger, broker }) {
                 logger?.info(
                     {
                         commandId,
-                        fromTs: payload.fromTs,
-                        toTs: payload.toTs,
+                        fromUTC: payload.fromUTC,
+                        toUTC: payload.toUTC,
                         requestedBy,
                         requestedAt,
                     },
@@ -135,10 +128,10 @@ export function createCommandServices({ logger, broker }) {
                           },
                     ack: null,
                     payload: {
-                        fromTs: payload.fromTs,
-                        toTs: payload.toTs,
+                        fromUTC: payload.fromUTC,
+                        toUTC: payload.toUTC,
                     },
-                    message: `События от ${payload.fromTs} до ${payload.toTs} квитированы`,
+                    message: `События от ${payload.fromUTC} до ${payload.toUTC} квитированы`,
                 };
 
                 await new Promise((resolve, reject) => {

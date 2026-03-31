@@ -48,7 +48,7 @@ export default async function configRoutes(fastify) {
                 await fs.writeFile(tmp, json, "utf8");
                 await fs.rename(tmp, CONFIG_PATH);
 
-                return reply.code(200).send({ ok: true });
+                return reply.code(201).send();
             } catch (error) {
                 fastify.log.error(error);
                 return reply
@@ -63,7 +63,7 @@ export default async function configRoutes(fastify) {
         try {
             const data = await fs.readFile(CONFIG_PATH, "utf8");
             const config = JSON.parse(data);
-            return reply.code(200).send(config);
+            return reply.code(200).send({ config });
         } catch (error) {
             if (error.code === "ENOENT") {
                 return reply.code(404).send({ error: { code: ERROR_CODES.NOT_FOUND } });
@@ -80,7 +80,7 @@ export default async function configRoutes(fastify) {
             const data = await fs.readFile(CONFIG_PATH, "utf8");
             const config = JSON.parse(data);
             const variables = getVariables(config);
-            return reply.code(200).send(variables);
+            return reply.code(200).send({ variables });
         } catch (error) {
             if (error.code === "ENOENT") {
                 return reply.code(404).send({ error: { code: ERROR_CODES.NOT_FOUND } });
@@ -97,7 +97,7 @@ export default async function configRoutes(fastify) {
             const data = await fs.readFile(CONFIG_PATH, "utf8");
             const config = JSON.parse(data);
             const graphVariables = getGraphVariables(config);
-            return reply.code(200).send(graphVariables);
+            return reply.code(200).send({ variables: graphVariables });
         } catch (error) {
             if (error.code === "ENOENT") {
                 return reply.code(404).send({ error: { code: ERROR_CODES.NOT_FOUND } });

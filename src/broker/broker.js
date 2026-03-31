@@ -119,8 +119,6 @@ function createCommandDispatcher({ logger, services }) {
                 requestedBy: data.requestedBy ?? null,
                 payload: {
                     eventId: data.payload.eventId,
-                    event: data.payload.event,
-                    message: data.payload.message,
                 },
                 requestedByClientId: client?.id ?? "server",
                 raw: data,
@@ -142,8 +140,8 @@ function createCommandDispatcher({ logger, services }) {
             if (
                 !data.commandId ||
                 data.type !== "journal.ack.range" ||
-                !data.payload?.fromTs ||
-                !data.payload?.toTs
+                !data.payload?.fromUTC ||
+                !data.payload?.toUTC
             ) {
                 logger?.warn(
                     {
@@ -170,8 +168,8 @@ function createCommandDispatcher({ logger, services }) {
                 requestedAt: data.requestedAt ?? null,
                 requestedBy: data.requestedBy ?? null,
                 payload: {
-                    fromTs: data.payload.fromTs,
-                    toTs: data.payload.toTs,
+                    fromUTC: data.payload.fromUTC,
+                    toUTC: data.payload.toUTC,
                 },
                 requestedByClientId: client?.id ?? "server",
                 raw: data,

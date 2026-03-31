@@ -43,8 +43,8 @@ export function slowDownStream(delayMs = 10, chunkSize = 256) {
     });
 }
 
-export async function listOfFilesWithSize(type) {
-    const dirPath = path.resolve(BASE_DIR, type);
+export async function listOfFilesWithSize() {
+    const dirPath = path.resolve(BASE_DIR);
 
     const entries = await fss.readdir(dirPath, {
         withFileTypes: true,
@@ -58,10 +58,10 @@ export async function listOfFilesWithSize(type) {
             const st = await fss.stat(fullPath);
             return {
                 label: file.name,
-                value: `${type}/${file.name}`,
+                value: `${file.name}`,
                 size: st.size,
                 mtime: st.mtime,
-                category: type,
+                category: "sd", // заглушка, удалить
             };
         }),
     );

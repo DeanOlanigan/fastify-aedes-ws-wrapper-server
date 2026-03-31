@@ -3,7 +3,7 @@ import fss from "node:fs/promises";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import AdmZip from "adm-zip";
-import { ERROR_CODES } from "../errorCodes";
+import { ERROR_CODES } from "../errorCodes.js";
 
 //const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -73,12 +73,12 @@ export default async function hmiRoutes(fastify) {
             }
 
             items.sort((a, b) => b.mtime - a.mtime);
-            return reply.send(items);
+            return reply.send({items});
         } catch (error) {
             fastify.log.error(error);
             return reply
                 .code(500)
-                .send({ error: { code: "INTERNAL_SERVER_ERROR" } });
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 
@@ -88,7 +88,7 @@ export default async function hmiRoutes(fastify) {
         if (!isValidProjectId(id)) {
             return reply
                 .code(400)
-                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
+                .send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
         }
 
         const { thumb } = getProjectPaths(id);
@@ -117,7 +117,7 @@ export default async function hmiRoutes(fastify) {
         if (!isValidProjectId(id)) {
             return reply
                 .code(400)
-                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
+                .send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
         }
 
         const { archive } = getProjectPaths(id);
@@ -150,7 +150,7 @@ export default async function hmiRoutes(fastify) {
         if (!isValidProjectId(id)) {
             return reply
                 .code(400)
-                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
+                .send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
         }
 
         const { dir } = getProjectPaths(id);
@@ -159,7 +159,7 @@ export default async function hmiRoutes(fastify) {
             await fss.access(dir, fs.constants.F_OK);
             await fss.rm(dir, { recursive: true, force: false });
 
-            return reply.code(200).send({ ok: true });
+            return reply.code(204).send();
         } catch (error) {
             if (error.code === "ENOENT") {
                 return reply
@@ -178,11 +178,11 @@ export default async function hmiRoutes(fastify) {
         if (!isValidProjectId(id)) {
             return reply
                 .code(400)
-                .send({ error: { code: ERROR_CODES.INVALID_PROJECT_ID } });
+                .send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
         }
 
         if (!req.isMultipart || !req.isMultipart()) {
-            return reply.code(400).send({ error: { code: "INVALID_PAYLOAD" } });
+            return reply.code(400).send({ error: { code: ERROR_CODES.INVALID_PAYLOAD } });
         }
 
         const data = await req.file();
@@ -240,12 +240,12 @@ export default async function hmiRoutes(fastify) {
                 await fss.rm(paths.thumb, { force: true }).catch(() => {});
             }
 
-            return reply.code(200).send({ ok: true });
+            return reply.code(201).send();
         } catch (error) {
             fastify.log.error(error);
             return reply
                 .code(500)
-                .send({ error: { code: "INTERNAL_SERVER_ERROR" } });
+                .send({ error: { code: ERROR_CODES.INTERNAL_SERVER_ERROR } });
         }
     });
 }

@@ -8,18 +8,18 @@ export function parseSignalHistoryBody(body) {
         throw createHttpError(400, "body is required");
     }
 
-    const { from, to, pointLimit, variables } = body;
+    const { fromUTC, toUTC, pointLimit, variables } = body;
 
-    if (!isValidIsoDate(from)) {
-        throw createHttpError(400, "from is not valid ISO date");
+    if (!isValidIsoDate(fromUTC)) {
+        throw createHttpError(400, "fromUTC is not valid ISO date");
     }
 
-    if (!isValidIsoDate(to)) {
-        throw createHttpError(400, "to is not valid ISO date");
+    if (!isValidIsoDate(toUTC)) {
+        throw createHttpError(400, "toUTC is not valid ISO date");
     }
 
-    const fromMs = Date.parse(from);
-    const toMs = Date.parse(to);
+    const fromMs = Date.parse(fromUTC);
+    const toMs = Date.parse(toUTC);
 
     if (fromMs > toMs) {
         throw createHttpError(400, "from > to");
