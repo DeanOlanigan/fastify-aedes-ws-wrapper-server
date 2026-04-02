@@ -152,23 +152,25 @@ function nextIntervalMs(cadence) {
 
 function qualityOk() {
     const attributes = [];
-    if (roll(0.5)) attributes.push("additionalCalc");
-    if (roll(0.7)) attributes.push("used");
+    if (roll(0.5)) attributes.push("test");
+    if (roll(0.7)) attributes.push("inaccurate");
+    if (roll(0.15)) attributes.push("inconsistent");
+    if (roll(0.3)) attributes.push("failure");
+    if (roll(0.3)) attributes.push("oscillatory");
+    if (roll(0.3)) attributes.push("badReference");
+    if (roll(0.3)) attributes.push("outOfRange");
     if (roll(0.15)) attributes.push("blocked");
-    if (roll(0.2)) attributes.push("overflow");
-    if (roll(0.25)) attributes.push("unknown");
-    if (roll(0.6)) attributes.push("manual");
-    if (roll(0.4)) attributes.push("substituted");
-    if (roll(0.35)) attributes.push("notTopical");
+    if (roll(0.2)) attributes.push("overflowed");
     if (roll(0.2)) attributes.push("invalid");
+    if (roll(0.35)) attributes.push("outdated");
+    if (roll(0.4)) attributes.push("substituted");
 
     const bad = new Set([
         "blocked",
-        "overflow",
-        "unknown",
-        "manual",
+        "overflowed",
+        "blocked",
         "substituted",
-        "notTopical",
+        "outdated",
         "invalid",
     ]);
 
