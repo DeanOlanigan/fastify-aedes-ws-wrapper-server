@@ -7,35 +7,35 @@ import { requireAuth } from "../services/auth-guards.js";
 export default async function mqttRoutes(fastify) {
     // GET /mqtt/demo
     fastify.put(
-        "/mqtt/demo",
+        "api/v2/mqtt/demo",
         {
             preHandler: [requireAuth],
         },
-        async () => {
+        async (_, reply) => {
             startDemoPublishers(fastify.mqttBroker);
-            return { ok: true, ts: Date.now() };
+            return reply.code(204).send();
         },
     );
 
     // DELETE /mqtt/demo
     fastify.delete(
-        "/mqtt/demo",
+        "api/v2/mqtt/demo",
         {
             preHandler: [requireAuth],
         },
-        async () => {
+        async (_, reply) => {
             stopDemoPublishers();
-            return { ok: true, ts: Date.now() };
+            return reply.code(204).send();
         },
     );
 
     // GET /mqtt/clients
     fastify.get(
-        "/mqtt/clients",
+        "api/v2/mqtt/clients",
         {
             preHandler: [requireAuth],
         },
-        async () => {
+        async (_, reply) => {
             const list = [];
             for (const c of Object.values(fastify.mqttBroker.clients)) {
                 list.push({
@@ -46,7 +46,8 @@ export default async function mqttRoutes(fastify) {
                     subscriptions: c.subscriptions,
                 });
             }
-            return { count: list.length, clients: list };
+
+            return reply.send({ count: list.length, clients: list });
         },
     );
 }
