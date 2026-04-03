@@ -7,7 +7,7 @@ import { requireAuth } from "../services/auth-guards.js";
 export default async function mqttRoutes(fastify) {
     // GET /mqtt/demo
     fastify.put(
-        "api/v2/mqtt/demo",
+        "/api/v2/mqtt/demo",
         {
             preHandler: [requireAuth],
         },
@@ -19,7 +19,7 @@ export default async function mqttRoutes(fastify) {
 
     // DELETE /mqtt/demo
     fastify.delete(
-        "api/v2/mqtt/demo",
+        "/api/v2/mqtt/demo",
         {
             preHandler: [requireAuth],
         },
@@ -31,7 +31,7 @@ export default async function mqttRoutes(fastify) {
 
     // GET /mqtt/clients
     fastify.get(
-        "api/v2/mqtt/clients",
+        "/api/v2/mqtt/clients",
         {
             preHandler: [requireAuth],
         },
