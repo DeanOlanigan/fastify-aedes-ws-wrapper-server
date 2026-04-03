@@ -3,102 +3,669 @@
     "$id": "https://example.com/schemas/journal-event.schema.json",
     "title": "Journal Event",
     "type": "object",
-    "oneOf": [
+    "allOf": [
         {
-            "$ref": "#/$defs/variableValueChangedEvent"
+            "$ref": "#/$defs/baseEvent"
         },
         {
-            "$ref": "#/$defs/variableStateChangedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.value_changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/variableChangePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/variableQualityChangedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.state_changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/variableChangePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/variableThresholdHighEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.quality_changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/variableChangePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/variableThresholdLowEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.threshold_high"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/variableThresholdPayload"
+                            },
+                            {
+                                "properties": {
+                                    "threshold": {
+                                        "properties": {
+                                            "kind": {
+                                                "const": "high"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/userLoginEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "variable.threshold_low"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "variable"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/variableThresholdPayload"
+                            },
+                            {
+                                "properties": {
+                                    "threshold": {
+                                        "properties": {
+                                            "kind": {
+                                                "const": "low"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/userLogoutEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.login"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/userLoginFailedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.logout"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/userSessionExpiredEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.login_failed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/eventAcknowledgedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "user.session_expired"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "user"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/userSessionPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/configUpdatedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "event.acknowledged"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "event"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/eventAcknowledgedPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/hmiOpenedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "config.updated"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "config"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/configUpdatedPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/hmiUploadedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.opened"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiProjectPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/hmiSavedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.uploaded"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiFilePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/hmiDeletedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.saved"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiProjectPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/serverStartedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "hmi.deleted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "hmi"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/hmiFilePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/serverStoppedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.started"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/serverRestartedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.stopped"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/serverErrorEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.restarted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/serverWarningEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.error"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/settingsWebserverChangedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "server.warning"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "server"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/serverEventPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/settingsRetentionChangedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "settings.webserver.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "settings"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/settingsChangedPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/securityUsersChangedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "settings.retention.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "settings"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/settingsChangedPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/securityUsersDeletedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.users.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityUserPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/securityRolesChangedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.users.deleted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityUserPayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/securityRolesDeletedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.roles.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityRolePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/securityLicenseChangedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.roles.deleted"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/securityRolePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/securityLicenseExpiredEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.license.changed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/securityLicensePayload"
+                            },
+                            {
+                                "properties": {
+                                    "status": {
+                                        "const": "updated"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/systemSoftwareUpdateStartedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "security.license.expired"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "security"
+                    },
+                    "payload": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/securityLicensePayload"
+                            },
+                            {
+                                "properties": {
+                                    "status": {
+                                        "const": "expired"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/systemSoftwareUpdateFinishedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.started"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/systemSoftwareUpdateFailedEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.finished"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
         },
         {
-            "$ref": "#/$defs/systemSoftwareUpdateCanceledEvent"
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.failed"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "event": {
+                        "const": "system.software_update.canceled"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "category": {
+                        "const": "system"
+                    },
+                    "payload": {
+                        "$ref": "#/$defs/softwareUpdatePayload"
+                    }
+                }
+            }
         }
     ],
     "$defs": {
@@ -138,6 +705,7 @@
                 "user.login_failed",
                 "user.session_expired",
                 "event.acknowledged",
+                "event.acknowledged.range",
                 "config.updated",
                 "hmi.opened",
                 "hmi.uploaded",
@@ -249,7 +817,7 @@
             ],
             "additionalProperties": false
         },
-        "variableRefBase": {
+        "variableRef": {
             "type": "object",
             "properties": {
                 "id": {
@@ -270,37 +838,23 @@
                 "unit": {
                     "type": "string",
                     "minLength": 1
+                },
+                "group": {
+                    "type": "string",
+                    "enum": [
+                        "state",
+                        "warn",
+                        "danger"
+                    ]
                 }
             },
             "required": [
                 "id",
                 "name",
-                "dataType"
+                "dataType",
+                "group"
             ],
             "additionalProperties": false
-        },
-        "variableRefWithGroup": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/variableRefBase"
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "group": {
-                            "type": "string",
-                            "enum": [
-                                "state",
-                                "warn",
-                                "danger"
-                            ]
-                        }
-                    },
-                    "required": [
-                        "group"
-                    ]
-                }
-            ]
         },
         "limits": {
             "type": "object",
@@ -387,7 +941,7 @@
             "type": "object",
             "properties": {
                 "variable": {
-                    "$ref": "#/$defs/variableRefBase"
+                    "$ref": "#/$defs/variableRef"
                 },
                 "change": {
                     "type": "object",
@@ -421,7 +975,7 @@
             "type": "object",
             "properties": {
                 "variable": {
-                    "$ref": "#/$defs/variableRefWithGroup"
+                    "$ref": "#/$defs/variableRef"
                 },
                 "value": {},
                 "threshold": {
@@ -788,698 +1342,6 @@
                 "update"
             ],
             "additionalProperties": false
-        },
-        "variableValueChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "variable"
-                        },
-                        "event": {
-                            "const": "variable.value_changed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/variableChangePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "variableStateChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "variable"
-                        },
-                        "event": {
-                            "const": "variable.state_changed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/variableChangePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "variableQualityChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "variable"
-                        },
-                        "event": {
-                            "const": "variable.quality_changed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/variableChangePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "variableThresholdHighEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "variable"
-                        },
-                        "event": {
-                            "const": "variable.threshold_high"
-                        },
-                        "payload": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/$defs/variableThresholdPayload"
-                                },
-                                {
-                                    "properties": {
-                                        "threshold": {
-                                            "properties": {
-                                                "kind": {
-                                                    "const": "high"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "variableThresholdLowEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "variable"
-                        },
-                        "event": {
-                            "const": "variable.threshold_low"
-                        },
-                        "payload": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/$defs/variableThresholdPayload"
-                                },
-                                {
-                                    "properties": {
-                                        "threshold": {
-                                            "properties": {
-                                                "kind": {
-                                                    "const": "low"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "userLoginEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "user"
-                        },
-                        "event": {
-                            "const": "user.login"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/userSessionPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "userLogoutEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "user"
-                        },
-                        "event": {
-                            "const": "user.logout"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/userSessionPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "userLoginFailedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "user"
-                        },
-                        "event": {
-                            "const": "user.login_failed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/userSessionPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "userSessionExpiredEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "user"
-                        },
-                        "event": {
-                            "const": "user.session_expired"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/userSessionPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "eventAcknowledgedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "event"
-                        },
-                        "event": {
-                            "const": "event.acknowledged"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/eventAcknowledgedPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "configUpdatedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "config"
-                        },
-                        "event": {
-                            "const": "config.updated"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/configUpdatedPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "hmiOpenedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "hmi"
-                        },
-                        "event": {
-                            "const": "hmi.opened"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/hmiProjectPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "hmiUploadedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "hmi"
-                        },
-                        "event": {
-                            "const": "hmi.uploaded"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/hmiFilePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "hmiSavedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "hmi"
-                        },
-                        "event": {
-                            "const": "hmi.saved"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/hmiProjectPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "hmiDeletedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "hmi"
-                        },
-                        "event": {
-                            "const": "hmi.deleted"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/hmiFilePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "serverStartedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "server"
-                        },
-                        "event": {
-                            "const": "server.started"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/serverEventPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "serverStoppedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "server"
-                        },
-                        "event": {
-                            "const": "server.stopped"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/serverEventPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "serverRestartedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "server"
-                        },
-                        "event": {
-                            "const": "server.restarted"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/serverEventPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "serverErrorEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "server"
-                        },
-                        "event": {
-                            "const": "server.error"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/serverEventPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "serverWarningEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "server"
-                        },
-                        "event": {
-                            "const": "server.warning"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/serverEventPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "settingsWebserverChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "settings"
-                        },
-                        "event": {
-                            "const": "settings.webserver.changed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/settingsChangedPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "settingsRetentionChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "settings"
-                        },
-                        "event": {
-                            "const": "settings.retention.changed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/settingsChangedPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "securityUsersChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "security"
-                        },
-                        "event": {
-                            "const": "security.users.changed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/securityUserPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "securityUsersDeletedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "security"
-                        },
-                        "event": {
-                            "const": "security.users.deleted"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/securityUserPayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "securityRolesChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "security"
-                        },
-                        "event": {
-                            "const": "security.roles.changed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/securityRolePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "securityRolesDeletedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "security"
-                        },
-                        "event": {
-                            "const": "security.roles.deleted"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/securityRolePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "securityLicenseChangedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "security"
-                        },
-                        "event": {
-                            "const": "security.license.changed"
-                        },
-                        "payload": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/$defs/securityLicensePayload"
-                                },
-                                {
-                                    "properties": {
-                                        "status": {
-                                            "const": "updated"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "securityLicenseExpiredEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "security"
-                        },
-                        "event": {
-                            "const": "security.license.expired"
-                        },
-                        "payload": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/$defs/securityLicensePayload"
-                                },
-                                {
-                                    "properties": {
-                                        "status": {
-                                            "const": "expired"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "systemSoftwareUpdateStartedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "system"
-                        },
-                        "event": {
-                            "const": "system.software_update.started"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/softwareUpdatePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "systemSoftwareUpdateFinishedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "system"
-                        },
-                        "event": {
-                            "const": "system.software_update.finished"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/softwareUpdatePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "systemSoftwareUpdateFailedEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "system"
-                        },
-                        "event": {
-                            "const": "system.software_update.failed"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/softwareUpdatePayload"
-                        }
-                    }
-                }
-            ]
-        },
-        "systemSoftwareUpdateCanceledEvent": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/baseEvent"
-                },
-                {
-                    "properties": {
-                        "category": {
-                            "const": "system"
-                        },
-                        "event": {
-                            "const": "system.software_update.canceled"
-                        },
-                        "payload": {
-                            "$ref": "#/$defs/softwareUpdatePayload"
-                        }
-                    }
-                }
-            ]
         }
     }
 }

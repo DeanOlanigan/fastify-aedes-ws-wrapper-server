@@ -1,5 +1,5 @@
 {
-    "$schema": "./journal.event.schema2.json",
+    "$schema": "./journal.event.schema.json",
     "schemaVersion": 1,
     "id": "asd",
     "ts": 123123123123,

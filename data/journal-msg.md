@@ -1,7 +1,7 @@
-// ==================== \\
-//      EVENT LIST      \\
-// ==================== \\
-"variable.value_changed",
+# EVENT LIST
+
+```
+"variable.value_changed"
 "variable.state_changed",
 "variable.quality_changed",
 "variable.threshold_high",
@@ -41,10 +41,11 @@
 "system.software_update.finished",
 "system.software_update.failed",
 "system.software_update.canceled",
+```
 
-// ==================== \\
-// MQTT PAYLOAD EXAMPLE \\
-// ==================== \\
+# MQTT PAYLOAD EXAMPLE
+
+``` json
 {
   "schemaVersion": 1,
   "id": "019ce0c4-cc6a-7449-8480-94f2da98c139",
@@ -74,11 +75,10 @@
   "payload": {
   }
 }
+```
 
-// ==================== \\
-//   PAYLOADS EXAMPLES  \\
-// ==================== \\
-
+# PAYLOADS EXAMPLES
+``` json
 // variable.value_changed
 {
   "variable": {
@@ -223,3 +223,4 @@
   },
   "details": "",
 }
+```

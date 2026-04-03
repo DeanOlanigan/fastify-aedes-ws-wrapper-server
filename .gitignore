@@ -1,6 +1,4 @@
 # Logs
-logs
-db
 *.xml
 *.log
 npm-debug.log*
@@ -25,5 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-src/data
 data/hmi
+data/db
+data/logs
+data/configuration.json
